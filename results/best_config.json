@@ -1,0 +1,149 @@
+{
+ "config": {
+  "lam_plate": 2.0,
+  "lam_plate_x_strain": 6.0,
+  "booster": {
+   "n_comp": 240,
+   "n_estimators": 1600,
+   "learning_rate": 0.015,
+   "seeds": [
+    0,
+    1,
+    2
+   ]
+  },
+  "lam_source": 3.0,
+  "lam_instrument": 3.0,
+  "lam_compound": 32.0,
+  "lam_cmpd_x_time": 48.0,
+  "lam_cmpd_x_temp": 48.0,
+  "lam_cmpd_x_medium": 48.0,
+  "lam_cmpd_x_source": 48.0,
+  "lam_cmpd_x_strain": 72.0
+ },
+ "inner_total": 0.4505,
+ "selected_by": "scripts/33_booster_knobs.py, 6 inner folds, paired against the 26b pick",
+ "previous": {
+  "booster": {
+   "n_comp": 96,
+   "n_estimators": 800,
+   "learning_rate": 0.03
+  },
+  "inner_total": 0.4491,
+  "selected_by": "scripts/18_confirm_config.py + 26b_focused_search.py"
+ },
+ "delta_vs_previous": {
+  "seedbag x3 + winners": [
+   0.0014,
+   0.0002
+  ],
+  "winners combined (160 comp, lr .015, 1600 trees)": [
+   0.001,
+   0.0001
+  ],
+  "seedbag x3 alone": [
+   0.0008,
+   0.0001
+  ],
+  "note": "[paired mean delta, paired sem] over the same six inner mirrors; all three clear 2x their own sem. Fold-to-fold sd is 0.0223, so only the paired columns mean anything."
+ },
+ "rejected": [
+  "low-rank truncation of compound terms",
+  "empirical-Bayes per-protein shrinkage",
+  "plate-position factor",
+  "condition-cell interaction term",
+  "booster output scale (0.85 / 0.925 / 1.075 / 1.15) -- all within +-0.0002 of 1.0",
+  "num_leaves 127 -- -0.0001 +- 0.0003",
+  "low-rank truncation of the plate term -- assumption fails, see scripts/36_plate_rank.py",
+  "per-protein slope calibration of the perturbation term -- oracle upper bound is negative",
+  "amplifying the perturbation term on unseen-strain rows -- M2 gain cancelled by M4 and M1",
+  "perturbation identity at (data_source, pert_id) granularity -- negative in both the additive term and as a booster feature, all lambdas (scripts/39,40)",
+  "condition main effects Medium/Temperature/pert_time -- +0.0021 on all six folds but -0.0006 on the three folds that match the official structure; a pure orphan-plate artifact (scripts/43)",
+  "booster seeds beyond 3 -- gain saturates faster than (1-1/n), x10 only +0.0001 (scripts/38)",
+  "strain fitted before plate -- +0.0030 on three folds, +0.0021 (3/6) on six orphan-free folds, never clears 2x its own sem (scripts/49,51)",
+  "perturbation lambda beyond x4 -- +0.0004 (3/6) on six orphan-free folds (scripts/48,51)",
+  "320 residual components -- +0.00012 for 33% more compute (scripts/51)",
+  "fully coarse-to-fine factor order -- -0.0028; plate must precede the strain_x_* interactions (scripts/49)",
+  "n_pass 12 / 24 -- -0.0005 / -0.0044 (scripts/49)",
+  "strain-family lambdas one at a time x0.25 / x4, whole family x0.5 -- all within +-0.0004, none clears 2x sem (scripts/55,56, six orphan-free folds)",
+  "fit_offset off -- -0.0002 (55/56)",
+  "n_pass 4 / 3 -- -0.0010 / -0.0016; with 12/24 also negative, n_pass 6 sits at the minimum (55/56)",
+  "lam_plate_x_strain 3 / 12 -- -0.0003 / -0.0007 (55/56)",
+  "any of the above as extra ensemble members -- -0.00015 .. +0.00001 on top of A-E (56)"
+ ],
+ "booster_selected_by": "scripts/20_residual_ml.py + 21_residual_sweep.py + 26b_focused_search.py + 33_booster_knobs.py",
+ "inner_total_note": "内层六折含 3 个孤儿 plate 折, 数值不可与官方镜像直接比; 取舍一律按无孤儿三折",
+ "adopted_2026_08_16": {
+  "booster": "160->240 comp, 1600 trees, lr .015, seeds [0,1,2]",
+  "batch": "data_source + instrument 作为 plate 之上的粗父层(必须在 plate 之前拟合)",
+  "delta_orphan_free_3folds": [
+   0.00171,
+   0.0003
+  ],
+  "delta_all6folds_inflated": [
+   0.00719,
+   0.00259
+  ],
+  "evidence": "scripts/33,38,41,42 + scripts/analyze_paired.py",
+  "plate_lambdas": "lam_plate 0.3->2.0, lam_plate_x_strain 2.0->6.0",
+  "plate_lambdas_delta_orphan_free": [
+   0.00561,
+   0.00123
+  ],
+  "plate_lambdas_evidence": "scripts/44,45 (grid, cheap booster) + 46 (confirmed on the shipped 240-comp booster), 3/3 orphan-free folds",
+  "pert_lambdas": "整个扰动族 lambda x4 (compound 8->32, cmpd_x_* 12->48, cmpd_x_strain 18->72)",
+  "pert_lambdas_delta_orphan_free": [
+   0.00294,
+   0.00117
+  ],
+  "pert_lambdas_evidence": "scripts/47 (family multiplier grid) + 48 (extended, x8+ not significant) + 50 (confirmed on the shipped booster, 3/3) + 51 (x8 rejected on six orphan-free folds)"
+ },
+ "shipped_2026_08_16_2108": {
+  "what": "12-member equal-weight ensemble of the single config above; submission/prediction.csv sha256_16 b1b5493adfd0b65e (21:08; the 10-member version ba12aa7a was online 20:16-21:08)",
+  "members": "{current factor order, strain-early order} x {plate 2 pert x4 (adopted) | plate 1 | plate 4 | pert x2 | pert x8 | pert x16}; each member = adopted booster (240/1600/lr .015/seeds x3)",
+  "strain_early_order": [
+   "source",
+   "instrument",
+   "strain",
+   "plate",
+   "plate_x_strain",
+   "strain_x_medium",
+   "strain_x_temp",
+   "strain_x_time",
+   "strain_x_source"
+  ],
+  "delta_vs_single_config_real_booster_6_orphan_free_folds": [
+   0.00321,
+   0.00081,
+   "6/6"
+  ],
+  "delta_vs_5_member_A_E_real_booster": [
+   0.00189,
+   0.00074,
+   "6/6"
+  ],
+  "delta_5_member_A_E_vs_single_real_booster": [
+   0.00097,
+   0.00013,
+   "6/6"
+  ],
+  "selected_by": "scripts/55_member_pool.py + 56_pool_eval.py (cheap screen, then all 10 members re-run with the adopted booster); composed by 57_predict_member.py + 58_compose_submission.py",
+  "note": "strain-early order was rejected as a *replacement* (49/51: +0.0021, 3/6) but every strain-early member beats its current-order twin and adds 6/6 as an ensemble member; all lambda-neighbourhood candidates (strain-family lambdas x0.25/x4, fit_offset off, n_pass 3/4, pxs 3/12) are flat as singles and contribute nothing to the ensemble",
+  "delta_10_member_vs_5_member_A_E_real_booster": [
+   0.00189,
+   0.00074,
+   "6/6"
+  ],
+  "delta_12_vs_10_member_real_booster": [
+   0.00036,
+   0.00017,
+   "4/6; FE16 alone +0.00032 +- 0.00011, 5/6"
+  ],
+  "official_val_mirror_BAI": {
+   "single A": 0.4992,
+   "5-member A-E": 0.5001,
+   "10-member": 0.5029,
+   "12-member": "see results/val_mirror_ensembles.csv"
+  }
+ }
+}

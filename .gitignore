@@ -1,0 +1,10 @@
+# organiser data (non-public) and everything derived from it
+data/
+results/pool_*/
+results/folds/
+submission/
+*.npy
+*.pkl
+__pycache__/
+*.pyc
+.pytest_cache/

@@ -1,0 +1,12 @@
+trial,TOTAL
+lam_plate=0.3,0.4262
+lam_plate_x_strain=2,0.4235
+lowrank cmpd=10,0.4232
+lam_compound=20,0.4232
+default,0.4231
+lam_compound=3,0.4228
+lowrank cmpd=5,0.4225
+lowrank cmpd=15 + inter=8,0.4223
+lam_plate_x_strain=15,0.4212
+lowrank cmpd=10 + inter=5,0.4211
+lam_plate=3,0.4072
