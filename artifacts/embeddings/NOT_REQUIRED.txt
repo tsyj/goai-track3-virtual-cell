@@ -1,0 +1,2 @@
+最终模型不使用外部特征/embedding；本目录故意为空。
+The final model uses no external features/embeddings; this directory is intentionally empty.

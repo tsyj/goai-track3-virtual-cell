@@ -1,0 +1,70 @@
+# GOAI 2026 · 赛道三 · 方向一 虚拟细胞 —— 复赛最终配置（冻结）
+# 队伍：有枣儿　　本文件是唯一的配置真源：train.py / predict.py 只读它，不接受命令行覆盖模型参数。
+meta:
+  team: 有枣儿
+  direction: AIVC
+  frozen_at: "2026-09-02"
+  note: >
+    12 个近优配置的等权集成。两条轴：因子拟合顺序（当前顺序 / strain 提前到 plate 之前）
+    × 六个收缩强度点（plate 2 pert×4 采纳点、plate 1、plate 4、pert×2、pert×8、pert×16）。
+    取舍依据见 artifacts/results/pool_real_eval.csv 与 README 的“为什么是这 12 个”。
+
+data:
+  # 官方文件由 src/vcell/io.py 读取；测试蛋白真值在该层被硬性拒绝（load_proteome('test') 抛异常）
+  metadata_train_val: data/input/WAYB_WAYC_metadata_train_val(1).csv
+  metadata_test:      data/input/WAYB_WAYC_metadata_test(1).csv
+  proteome_train_val: data/input/WAYB_WAYC_proteome_raw_train_val.csv
+  train_split_value: train          # 只有 split_final == 'train' 的标签可用
+  protein_missing_max: 0.80         # 仅用 train 行计算缺失率，>= 80% 缺失的蛋白删除
+  expect_train_rows: 5920
+  expect_test_rows: 4454
+  expect_n_proteins: 4422
+
+model:
+  n_pass: 6                         # 回填扫数；4/8/12/24 均实测更差（scripts/experiments/49, 55）
+  fit_offset: true                  # 每样本上样偏移；关闭为 -0.0002（55/56）
+  # 因子按“粗→细”顺序回填；顺序本身是一个被实测证明重要的超参（experiments/41, 49）
+  base_lambdas:                     # 收缩强度 λ；下列值为采纳点，成员可覆盖
+    source: 3.0
+    instrument: 3.0
+    plate: 2.0
+    plate_x_strain: 6.0
+    strain: 3.0
+    strain_x_medium: 6.0
+    strain_x_temp: 6.0
+    strain_x_time: 8.0
+    strain_x_source: 8.0
+    compound: 32.0                  # 扰动族 = 初值 ×4（experiments/47, 48）
+    cmpd_x_time: 48.0
+    cmpd_x_temp: 48.0
+    cmpd_x_medium: 48.0
+    cmpd_x_source: 48.0
+    cmpd_x_strain: 72.0
+  booster:                          # 残差 LightGBM：残差 PCA 到 n_comp 维，每维一棵森林
+    n_comp: 240
+    n_estimators: 1600
+    learning_rate: 0.015
+    num_leaves: 31
+    seeds: [0, 1, 2]                # 多种子 bagging；每个成分 j 的 random_state = seed + j
+
+ensemble:
+  weights: null                     # null = 等权
+  members:
+    - {name: A,                  pert_mult: 4}
+    - {name: B,                  pert_mult: 4, lam: {plate: 1.0}}
+    - {name: C,                  pert_mult: 4, lam: {plate: 4.0}}
+    - {name: D,                  pert_mult: 2}
+    - {name: E,                  pert_mult: 8}
+    - {name: E16_pert16,         pert_mult: 16}
+    - {name: F_strain_early,     pert_mult: 4,  order: &early
+        [source, instrument, strain, plate, plate_x_strain,
+         strain_x_medium, strain_x_temp, strain_x_time, strain_x_source]}
+    - {name: FB_early_plate1,    pert_mult: 4,  order: *early, lam: {plate: 1.0}}
+    - {name: FC_early_plate4,    pert_mult: 4,  order: *early, lam: {plate: 4.0}}
+    - {name: FD_early_pert2,     pert_mult: 2,  order: *early}
+    - {name: FE_early_pert8,     pert_mult: 8,  order: *early}
+    - {name: FE16_early_pert16,  pert_mult: 16, order: *early}
+
+output:
+  prediction_scale: log2            # 官方只接受 log2；不得提交 z-score / PCA latent
+  float_format: "%.5f"

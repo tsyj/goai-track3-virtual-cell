@@ -1,0 +1,130 @@
+{
+ "statement": "最终提交模型不使用任何外部数据。以下资源仅出现在诊断/消融实验中，其结论已写入报告，且全部为负结果或未采纳。",
+ "final_model_external_inputs": "none",
+ "strain_proxy_assumptions": {
+  "DHY210": "实验室菌株，不在 1,011 基因组集合内；诊断实验中按 S288c 参考处理（等价于全部基因存在、拷贝数 1），该假设仅影响 experiments/63-65，不影响最终模型。"
+ },
+ "resources": [
+  {
+   "name": "1011 Yeast Genomes / genesMatrix_PresenceAbsence.tab.gz",
+   "url": "http://1002genomes.u-strasbg.fr/files/genesMatrix_PresenceAbsence.tab.gz",
+   "citation": "Peter J. et al., Genome evolution across 1,011 Saccharomyces cerevisiae isolates. Nature 556, 339-344 (2018).",
+   "version": "2018 release (site has no version tag; retrieved copy hashed below)",
+   "downloaded": "2026-08-10",
+   "license": "公开发布供学术研究使用；见 http://1002genomes.u-strasbg.fr/",
+   "bytes": 416189,
+   "sha256": "63b62d6761c378f71360a259add9ad3317befb27cfa45944d0b11433766bf7fc",
+   "used_in_final_model": "否 —— 仅用于 scripts/experiments/63,64,65 的诊断实验"
+  },
+  {
+   "name": "1011 Yeast Genomes / genesMatrix_CopyNumber.tab.gz",
+   "url": "http://1002genomes.u-strasbg.fr/files/genesMatrix_CopyNumber.tab.gz",
+   "citation": "Peter J. et al., Genome evolution across 1,011 Saccharomyces cerevisiae isolates. Nature 556, 339-344 (2018).",
+   "version": "2018 release (site has no version tag; retrieved copy hashed below)",
+   "downloaded": "2026-08-10",
+   "license": "公开发布供学术研究使用；见 http://1002genomes.u-strasbg.fr/",
+   "bytes": 1002976,
+   "sha256": "d22fe0a2024921163739553afb612e97e229c99b51a4301021c2433e11b2ee4d",
+   "used_in_final_model": "否 —— 仅用于 scripts/experiments/63,64,65 的诊断实验"
+  },
+  {
+   "name": "1011 Yeast Genomes / genesMatrix_Frameshift.tab.gz",
+   "url": "http://1002genomes.u-strasbg.fr/files/genesMatrix_Frameshift.tab.gz",
+   "citation": "Peter J. et al., Genome evolution across 1,011 Saccharomyces cerevisiae isolates. Nature 556, 339-344 (2018).",
+   "version": "2018 release (site has no version tag; retrieved copy hashed below)",
+   "downloaded": "2026-09-02",
+   "license": "公开发布供学术研究使用；见 http://1002genomes.u-strasbg.fr/",
+   "bytes": 235234,
+   "sha256": "110debdf846e48ff71d21c69ec66b1dfde0239be3e199ba432544d218634bee5",
+   "used_in_final_model": "否 —— 仅用于 scripts/experiments/63,64,65 的诊断实验"
+  },
+  {
+   "name": "1011 Yeast Genomes / 1011DistanceMatrixBasedOnSNPs.tab.gz",
+   "url": "http://1002genomes.u-strasbg.fr/files/1011DistanceMatrixBasedOnSNPs.tab.gz",
+   "citation": "Peter J. et al., Genome evolution across 1,011 Saccharomyces cerevisiae isolates. Nature 556, 339-344 (2018).",
+   "version": "2018 release (site has no version tag; retrieved copy hashed below)",
+   "downloaded": "2026-08-10",
+   "license": "公开发布供学术研究使用；见 http://1002genomes.u-strasbg.fr/",
+   "bytes": 5092773,
+   "sha256": "140da4e5193584c01e60c554a2ba5075a542d925be540afe7c7a92b7377af928",
+   "used_in_final_model": "否 —— 仅用于 scripts/experiments/63,64,65 的诊断实验"
+  },
+  {
+   "name": "1011 Yeast Genomes / 1011DistanceMatrixBasedOnORFs.tab.gz",
+   "url": "http://1002genomes.u-strasbg.fr/files/1011DistanceMatrixBasedOnORFs.tab.gz",
+   "citation": "Peter J. et al., Genome evolution across 1,011 Saccharomyces cerevisiae isolates. Nature 556, 339-344 (2018).",
+   "version": "2018 release (site has no version tag; retrieved copy hashed below)",
+   "downloaded": "2026-08-10",
+   "license": "公开发布供学术研究使用；见 http://1002genomes.u-strasbg.fr/",
+   "bytes": 1253423,
+   "sha256": "d443b51a9cbff5b7f223b088902bdf1db711ed07aa692eac0834fd1309420568",
+   "used_in_final_model": "否 —— 仅用于 scripts/experiments/63,64,65 的诊断实验"
+  },
+  {
+   "name": "1011 Yeast Genomes / phenoMatrix_35ConditionsNormalizedByYPD.tab.gz",
+   "url": "http://1002genomes.u-strasbg.fr/files/phenoMatrix_35ConditionsNormalizedByYPD.tab.gz",
+   "citation": "Peter J. et al., Genome evolution across 1,011 Saccharomyces cerevisiae isolates. Nature 556, 339-344 (2018).",
+   "version": "2018 release (site has no version tag; retrieved copy hashed below)",
+   "downloaded": "2026-08-10",
+   "license": "公开发布供学术研究使用；见 http://1002genomes.u-strasbg.fr/",
+   "bytes": 178712,
+   "sha256": "7696369a6ad4ea98ed99708b2df59a2916ae34846f909648f241c1194c7347d9",
+   "used_in_final_model": "否 —— 仅用于 scripts/experiments/63,64,65 的诊断实验"
+  },
+  {
+   "name": "1011 Yeast Genomes / gene_dNdS.tab.gz",
+   "url": "http://1002genomes.u-strasbg.fr/files/gene_dNdS.tab.gz",
+   "citation": "Peter J. et al., Genome evolution across 1,011 Saccharomyces cerevisiae isolates. Nature 556, 339-344 (2018).",
+   "version": "2018 release (site has no version tag; retrieved copy hashed below)",
+   "downloaded": "2026-09-02",
+   "license": "公开发布供学术研究使用；见 http://1002genomes.u-strasbg.fr/",
+   "bytes": 266609,
+   "sha256": "ed930aeedf57644ffa227fe23b94f9c11de9a708033d44dec94db7a2fcecaa6a",
+   "used_in_final_model": "否 —— 仅用于 scripts/experiments/63,64,65 的诊断实验"
+  },
+  {
+   "name": "1011 Yeast Genomes / 1011LossOfFunction.xls.gz",
+   "url": "http://1002genomes.u-strasbg.fr/files/1011LossOfFunction.xls.gz",
+   "citation": "Peter J. et al., Genome evolution across 1,011 Saccharomyces cerevisiae isolates. Nature 556, 339-344 (2018).",
+   "version": "2018 release (site has no version tag; retrieved copy hashed below)",
+   "downloaded": "2026-09-02",
+   "license": "公开发布供学术研究使用；见 http://1002genomes.u-strasbg.fr/",
+   "bytes": 281760,
+   "sha256": "067327e1970c48f278dd08abb18f140622458829a6abc320207245c8c4b61c34",
+   "used_in_final_model": "否 —— 仅用于 scripts/experiments/63,64,65 的诊断实验"
+  },
+  {
+   "name": "1011 Yeast Genomes / 1011proteome.tar.gz",
+   "url": "http://1002genomes.u-strasbg.fr/files/1011proteome.tar.gz",
+   "citation": "Peter J. et al., Genome evolution across 1,011 Saccharomyces cerevisiae isolates. Nature 556, 339-344 (2018).",
+   "version": "2018 release (site has no version tag; retrieved copy hashed below)",
+   "downloaded": "2026-09-02",
+   "license": "公开发布供学术研究使用；见 http://1002genomes.u-strasbg.fr/",
+   "bytes": 58265385,
+   "sha256": "3ebccce2e998eff30b66b94b8cbc8a3ad281244ce3d9e71999bb86ba6e2e5252",
+   "used_in_final_model": "否 —— 仅用于 scripts/experiments/63,64,65 的诊断实验"
+  },
+  {
+   "name": "SGD chromosomal features (基因符号 → 系统名映射)",
+   "url": "http://sgd-archive.yeastgenome.org/curation/chromosomal_feature/SGD_features.tab",
+   "citation": "Saccharomyces Genome Database (SGD), yeastgenome.org",
+   "version": "retrieved 2026-09-02 snapshot",
+   "downloaded": "2026-09-02",
+   "license": "SGD 数据免费供学术使用（https://www.yeastgenome.org/license）",
+   "bytes": 3382715,
+   "sha256": "636b4fc0407dd9f4fe74dceb5f5cd056194623d36a25c620a3c1ec2394af3dcc",
+   "used_in_final_model": "否 —— 仅用于把蛋白名映射到 ORF，供诊断实验使用"
+  },
+  {
+   "name": "PubChem 化合物 SMILES / 分子式（PUG REST）",
+   "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/<name>/property/SMILES,MolecularFormula,MolecularWeight,IUPACName/JSON",
+   "citation": "Kim S. et al., PubChem 2023 update. Nucleic Acids Res. 51:D1373 (2023).",
+   "version": "逐条查询 URL 记录在文件内",
+   "downloaded": "2026-08-09",
+   "license": "PubChem 数据属公有领域",
+   "bytes": 27279,
+   "sha256": "379400b239ad73ac7f067df7735f547c18aa8217737e6bf8fdcb77958e958555",
+   "used_in_final_model": "否 —— 化学相似度迁移实验，结论为负（experiments/05）"
+  }
+ ]
+}

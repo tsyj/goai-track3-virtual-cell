@@ -1,0 +1,24 @@
+{
+ "prediction_scale": "log2",
+ "n_test_rows": 4454,
+ "n_proteins": 4422,
+ "ensemble_members": [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "E16_pert16",
+  "F_strain_early",
+  "FB_early_plate1",
+  "FC_early_plate4",
+  "FD_early_pert2",
+  "FE_early_pert8",
+  "FE16_early_pert16"
+ ],
+ "weights": "equal",
+ "sha256": "c6750c9796d9faf4c898cf2465ed28a3ed7b0da88daacb7d21155b37c413c6c7",
+ "mb": 177.3,
+ "test_labels_used": false,
+ "config": "configs/final.yaml"
+}

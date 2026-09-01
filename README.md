@@ -1,90 +1,191 @@
-# 从批次结构到扰动响应：分层收缩回填与残差提升的虚拟酵母模型
+# 虚拟细胞方向 · 复赛代码与复现材料
 
-GOAI 2026 · 赛道三 算法赛 · 方向一：虚拟酵母扰动蛋白质组预测 ｜ **Demo：[`demo/README.md`](demo/README.md)** ｜ **复现：[`REPRODUCE.md`](REPRODUCE.md)**
-
-预测 4,454 个留出样本的完整 log2 蛋白质组向量（5,243 个蛋白），
-覆盖三类泛化场景：未见化合物（S1）、未见菌株（S2）、双重未知（S3），外加时间插值（test_time）。
-
-> **初赛提交（2026-08-16）**：复现最终 `submission/prediction.csv` 的完整步骤见 **`REPRODUCE.md`**。
-> 最终模型 = 12 个近优配置（两种因子拟合顺序 × 六个 λ 邻域点）的等权集成，
-> 每个成员 = 结构化可加模型 + 残差 LightGBM；官方 val 镜像（留出菌株 BAI）总分
-> 单配置 0.4992 → 集成 **0.5032**（`results/val_mirror_ensembles.csv`）。
-> 下面"快速开始"里的脚本与数字是 8-10 那一批探索时的记录（当时 0.481），保留作为过程记录。
+| | |
+|---|---|
+| **赛道 / 方向** | 赛道三 前沿探索 AI for Research · 算法赛题 · 方向一 虚拟细胞（AIVC） |
+| **队伍** | 有枣儿 |
+| **作品** | {{TITLE}} |
+| **最终模型** | 12 成员等权集成：分层收缩回填（`UnifiedBackfit`）＋ 残差梯度提升（`ResidualBooster`） |
+| **prediction.csv SHA256** | `c6750c9796d9faf4c898cf2465ed28a3ed7b0da88daacb7d21155b37c413c6c7` |
+| **代码版本** | git tag `{{TAG}}` ／ commit `{{COMMIT}}` ／ 仓库 https://github.com/tsyj/goai-track3-virtual-cell |
+| **配置 hash** | `configs/final.yaml` SHA256 `b71d5dfea3a03c676b381d0b0e8de202…` |
+| **负责人** | 孙丽敏 · jxy23@mails.tsinghua.edu.cn |
+| **已知限制** | 见第 6 节 |
 
 ---
 
-## 快速开始
+## 1. 三条主命令
+
+三条命令可直接复制执行。默认从 `data/input/` 读取官方文件；数据放在别处时设
+`VCELL_DATA_ROOT=<含 data/input 的目录>`。
 
 ```bash
-PY=/home/xinyuan/anaconda3/envs/numpy1/bin/python
+pip install -r requirements.txt
 
-$PY scripts/00_eda.py            # 数据结构、缺失、方差分解、菌株特异丢失
-$PY scripts/02_ceiling.py        # 复现上限（WAYB 三次重复）与空模型下限
-$PY scripts/08_tune_inner.py     # 内层镜像上选超参（不碰官方 val 划分）
-$PY scripts/09_metric_audit.py   # 六个评分模块的审计
-$PY scripts/13_control_noise.py  # 共享对照噪声的判定性实验
-$PY scripts/20_residual_ml.py    # 残差上训 GBDT：判定"模型族是不是选窄了"
-$PY scripts/21_residual_sweep.py # 成分数扫描 + 特征消融
-$PY scripts/22_nn_and_ensemble.py # 第三个模型族：embedding MLP 与集成（均被否决）
-$PY scripts/25_split_blend.py    # 未见菌株划分上 M2 与 M4 的取舍曲线
-$PY scripts/26b_focused_search.py # 256 核并行：6 折配对检验所有取舍
-$PY scripts/27_official_baselines.py # 自己实现官方口径的三个基线
-$PY scripts/14_final_eval.py     # 在官方 val 镜像上跑一次最终评估
-$PY scripts/10_predict_test.py   # 全量重训 → submission/prediction_*.csv
-$PY scripts/28_selfaudit_stats.py # 评测原语单元测试 + 配对自助置信区间
-$PY scripts/29_biology_check.py  # 10 条预注册的酵母生物学检验
-$PY scripts/12_figures.py        # 出图
+# 1) 构建外部特征 / embedding —— 本作品【无需执行】
+#    最终模型不使用任何外部数据。该命令会做静态扫描 + 正向验证，自证这一点。
+python scripts/build_embeddings.py --check
 
-/home/xinyuan/anaconda3/envs/numpy1/bin/python -m pytest tests/ -q   # 12 个测试
+# 2) 从头训练最终模型（12 个集成成员）
+python scripts/train.py \
+    --metadata "data/input/WAYB_WAYC_metadata_train_val(1).csv" \
+    --proteome "data/input/WAYB_WAYC_proteome_raw_train_val.csv" \
+    --config   configs/final.yaml \
+    --output-dir runs/final
+
+# 3) 冻结模型推理，生成 prediction.csv
+python scripts/predict.py \
+    --metadata "data/input/WAYB_WAYC_metadata_test(1).csv" \
+    --run-dir  runs/final \
+    --output   prediction.csv
+
+# 4) 提交前格式自检（行列、尺度、有限性、列序）
+python scripts/validate_submission.py --prediction prediction.csv
 ```
 
-依赖：numpy、pandas、scipy、matplotlib、lightgbm、rdkit（仅化学分析用）。
-**无需 GPU**；全流程在 CPU 上约 40 分钟。
+**冒烟测试（约 3 分钟，用于先确认环境可用）**
 
-模型是两层：`UnifiedBackfit`（结构化可加，吃批次结构）+ `ResidualBooster`
-（残差 PCA 到 96 维后每维一棵 LightGBM，吃高阶交互）。
-官方 val 镜像总分 **0.481**（随机下限 0.197，oracle 上限 0.818；
-自助重采样宽度 ±0.020，所以只报三位小数）。
-相对最强的官方口径基线（梯度提升 0.422）**+14.1%**。
+```bash
+bash scripts/smoke_test.sh
+```
+
+它用一个成员、缩减的 booster 跑通「训练 → 推理 → 校验」全链路，不产生正式结果。
+
+### 资源与耗时（实测，amax：Intel 256 核 / 503 GB / 无 GPU）
+
+| 步骤 | 耗时 | 峰值内存 | 说明 |
+|---|---|---|---|
+| 命令 1 | < 5 s | < 1 GB | 只做核验 |
+| 命令 2（12 成员，串行） | **约 6 小时** | 约 40 GB | 每成员约 30 min（32 线程）；成员之间互相独立，`--members` 可分批并行，8 路并行约 50 min |
+| 命令 3 | 约 1 min | 约 12 GB | 只做加性项重建 + 成分重构 |
+| 首次运行额外开销 | 约 2 min | — | 把 8,958×5,243 的原始 CSV 转成 log2 缓存（`data/cache/`） |
+
+无需 GPU。`runs/final` 约 300 MB。
 
 ---
 
-## 数据完整性：测试集真值已被隔离
+## 2. 模型
 
-官方数据包里的 `WAYB_WAYC_proteome_raw_test.csv` **含有全部测试样本的真值标签**，
-与手册"真值标签保留、由组委会离线评分"的说明不符。
+预测按评分口径拆成两部分：
 
-处理方式：
+```
+y_hat(样本) = B_hat(批次结构)  +  Delta_hat(扰动效应)
+```
 
-- 该文件已移入 `data/quarantine/`，权限 `400`；
-- `vcell/io.py::load_proteome` 在被请求 `test` 时**直接抛异常**，训练与
-  模型选择代码物理上无法读到它；
-- 所有评估都在**组委会自己提供的 `val_*` 划分**上做——这四个划分与四个
-  `test_*` 划分一一对应，且同样隐藏了留出菌株自己的对照孔
-  （本地 BAI ↔ 正式 CRD）；
-- 超参在**另一层内层镜像**（从 `train` 行里再切一次）上选，官方 val 镜像只评一次。
+**第一层 `UnifiedBackfit`（`src/vcell/models.py`）**——在 log2 空间对一列设计因子做**收缩回填**
+（shrunken backfitting）。因子按「粗 → 细」排列，每个因子的每个水平对每个蛋白估一个偏移，
+按 `n/(n+λ)` 向 0 收缩：
 
-详见 `docs/OPEN_QUESTIONS.md`。
+```
+source(4) → instrument(7) → plate(144) → plate×strain(381) → strain(5)
+          → strain×{medium, temp, time, source}
+          → compound(56) → compound×{time, temp, medium, source, strain}
+```
+
+三个设计要点，每一个都由实测决定，不是默认值：
+
+- **批次项与扰动项一起拟合**，而不是先用对照孔定基线。板效应单独解释 88% 的方差，
+  只用对照孔会浪费 87% 的标签。总分 0.407 → 0.457。
+- **`source` 与 `instrument` 必须排在 `plate` 之前**。两者完美嵌套于 plate 内（144 个板各只有
+  1 台仪器），把它们挪到 plate 之后，增益从 +0.0056 塌到 +0.0013——这是**分层部分池化**的
+  判定性签名：嵌套去掉的是"信息"，不是"部分池化"。
+- **收缩强度 λ 是被重调过的**，不是初值。`plate` 0.3→2.0、`plate×strain` 2.0→6.0 值 +0.0056；
+  扰动族整体 ×4 值 +0.0029。这两笔加起来比本项目所有"新模块"的总和还多一倍。
+
+**第二层 `ResidualBooster`**——把 4,422 维残差 SVD 压到 240 个成分，每个成分一棵 LightGBM
+森林（1600 树 / lr 0.015 / 3 个随机种子平均）。加性模型只能表达一阶和二阶表格，
+高阶交互交给树。它值 +0.0105，且主要落在加性模型对未见化合物**完全无法移动**的 M3/M4 上。
+
+**集成**——12 个成员 = 2 种因子拟合顺序 × 6 个收缩强度点，等权平均。见第 3 节。
 
 ---
 
-## 目录
+## 3. 为什么是这 12 个成员
+
+集成成员的价值不在于"各自更好"，而在于**偏差方向不同**。本项目的取舍全部由
+**六个内层折的逐折配对检验**决定（`scripts/paired_fold_eval.py`），过线标准
+`delta > 2 × sem`：
+
+| 候选 | 单独用（vs A） | 作为集成成员（vs 基线集成） | 结论 |
+|---|---|---|---|
+| λ 邻域（plate 1/4、pert ×2/×8/×16） | −0.0020 ~ +0.0004 | 合计 +0.00097（6/6） | **采纳** |
+| **strain 提前到 plate 之前**（F 族 6 个） | +0.0021，**仅 3/6，不过线** | **+0.0019（6/6）** | **采纳** |
+| strain 族各 λ ×0.25/×4、`fit_offset` 关、`n_pass` 3/4/8、`plate×strain` 3/12 | 全在 ±0.0004 内 | −0.00015 ~ +0.00001，**全零** | 否决 |
+| `pert ×32`、`booster 320 成分` | +0.0017 / +0.0009 | +0.00024（5/6）／ +0.00015 | **未采纳**（见下） |
+
+第二行是本项目方法论上最重要的一条：**"作为替代方案被否决"的候选，恰恰是最好的集成成员**。
+strain-early 顺序单独用时 3/6 折不过线，做成员却 6/6 过线，官方 val 镜像上它的六个变体
+**每一个**都优于对应的当前顺序成员（0.5005–0.5036 vs 0.4970–0.4999）。反过来，所有
+λ 邻域候选（低方差、与现有成员太像）对集成的贡献精确为零。
+
+最后两行说明为什么停在 12：两个候选的增益分别是 +0.00024（恰好等于 2×sem，5/6）和
++0.00015，都没有干净过线，而每加一个成员就给复现多加约 30 分钟训练。**收益已经饱和。**
+
+---
+
+## 4. 数据边界与合规
+
+| 项 | 做法 |
+|---|---|
+| 训练标签 | **只有** `split_final == 'train'` 的 5,920 行。`configs/final.yaml` 里断言行数，不符即报错退出 |
+| 验证集 | 只用于模型选择（`scripts/evaluate_val_mirror.py`，全程只评一次），不进入训练、不参与任何统计量 |
+| 测试蛋白真值 | **代码层禁读**。官方数据包里的 `WAYB_WAYC_proteome_raw_test.csv` 含全部测试真值，已移入 `data/quarantine/`；`src/vcell/io.py::load_proteome` 收到 `'test'` 直接抛 `RuntimeError`。`scripts/build_embeddings.py --check` 会**实际调用一次**来证明它确实被拒 |
+| 蛋白过滤 | 仅用 train 行计算缺失率，删除 ≥80% 缺失的蛋白 → 4,422 个。名称与顺序取自官方训练文件表头（含带逗号的 `ARG5,6` / `DUR1,2`） |
+| 尺度 | 对有限且 >0 的 raw intensity 取 log2；NA 保留为 mask，**不填 0**。提交为 log2，`prediction_manifest.json` 声明 `prediction_scale` |
+| 归一化统计 | 蛋白均值、SVD 基、类别词表全部只在 train 行上拟合 |
+| 随机种子 | booster `seeds=[0,1,2]`，每个成分 j 的 `random_state = seed + j`；加性模型完全确定 |
+| 外部数据 | **最终模型一处都不用**。探索过但未采用的资源（1,011 酵母基因组、SGD、PubChem）连同 URL、版本、下载日期、许可证与 SHA256 全部登记在 `external_data/source_manifest.json` |
+| 许可证 | 本作品 MIT（`LICENSES/`）。依赖：numpy / pandas / scipy / LightGBM（均 BSD 或 MIT） |
+| 商业 API / 闭源模型 | **未使用** |
+
+### 数值可复现性
+
+加性模型完全确定。LightGBM 在不同线程数下有约 1e-3 log2 量级的差异——实测同一配置
+32 线程 vs 16 线程：逐元素 rms 差 0.003，相关 0.9999995，对任何指标的影响在小数点后第五位。
+**建议复现时用 `VCELL_LGB_THREADS=32`**（我们生成提交结果时的设置），差异会更小。
+
+---
+
+## 5. 目录
 
 ```
-vcell/            io.py 载入与缓存 · design.py 对照匹配 · metrics.py 六模块评分
-                  models.py 统一可加模型 · chem.py 化学相似度 · harness.py 评测镜像
-scripts/          00–14，编号即执行顺序
-results/          所有实验的 CSV 与日志；figs/ 图
-submission/       prediction_log2.csv / prediction_raw.csv / manifest.json
-docs/             OPEN_QUESTIONS.md 待组委会确认 · METHOD.md 方法 · RESULTS.md 结果
-data/input/       原始 CSV（已去掉泄漏文件）
-data/quarantine/  泄漏的测试真值，只读、不读取
-data/chem/        PubChem 解析结果（57 个化合物）
+README.md                     本文
+requirements.txt              依赖与版本
+configs/final.yaml            ⭐ 唯一配置真源：12 个成员、全部 λ、booster、断言
+src/vcell/
+  ├─ io.py                    数据载入 + 测试真值隔离守卫
+  ├─ models.py                UnifiedBackfit / ResidualBooster（模型本体）
+  ├─ pipeline.py              训练与推理的分离层：拟合 / 冻结 / 重建
+  ├─ harness.py               折构造、蛋白过滤、评估入口
+  ├─ metrics.py               六个官方评分模块的忠实复现
+  └─ design.py                对照匹配
+scripts/
+  ├─ build_embeddings.py      主命令 1（自证无外部数据）
+  ├─ train.py                 主命令 2（从头训练 12 个成员）
+  ├─ predict.py               主命令 3（冻结推理 → prediction.csv）
+  ├─ validate_submission.py   提交格式自检
+  ├─ smoke_test.sh            3 分钟冒烟
+  ├─ evaluate_val_mirror.py   官方 val 镜像评估（模型选择用，只评一次）
+  ├─ paired_fold_eval.py      ⭐ 六折逐折配对检验（所有取舍的裁判）
+  └─ experiments/             全部实验脚本，含被否决的方向
+external_data/source_manifest.json   外部资源申报（含 SHA256）
+artifacts/results/            逐折原始结果与台账（评审据此核对取舍）
+tests/                        单元测试
 ```
 
-## 许可与外部资源
+---
 
-代码 MIT。外部资源仅两项，均为公开数据：
-PubChem PUG REST（化合物 SMILES，`scripts/04_fetch_chem.py` 记录了每条的请求 URL）、
-RDKit 2025.09.2（Morgan 指纹）。作用机制分类表是人工整理的，逐条列在
-`vcell/chem.py::MOA` 中以便审查。官方数据集不再分发。
+## 6. 已知限制
+
+1. **未见菌株的基线不可估**。留出菌株的每蛋白基线偏移 b（rms 0.34–0.36 log2，比真实扰动效应
+   0.146 大一倍多）在评分里不对称：真值那边被对照减掉了，预测这边没有。我们量化过它的
+   外部数据上界——公开基因组只能标记 2% 的（菌株, 蛋白）对、覆盖 b 方差的 7.7%，完美修正
+   后 rms 仅从 0.428 降到 0.411，换算到总分约 +0.0003（`scripts/experiments/63-65`）。
+   这是本作品最大的、且**已被定量封边**的限制。
+2. **见过菌株的划分已贴到噪声地板**。chem_only / time 的随机残差 0.306 / 0.301，
+   而单样本测量噪声地板是 0.26，比值 1.18 / 1.16。那里没有多少可提的了。
+3. **评分口径的不确定性大于建模改进**。同一份预测在不同合理读法下总分跨度 0.410–0.574，
+   是我们全部提分幅度的十几倍。相关问题已整理成清单提给组委会。
+4. **集成成本**。12 个成员意味着复现需要约 6 小时 CPU；`--members` 支持分批并行。
+5. **DHY210 无公开基因组**。它是实验室菌株，不在 1,011 基因组集合内；诊断实验中按 S288c
+   参考处理。该假设**不影响最终模型**（最终模型不用基因组）。
