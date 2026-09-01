@@ -34,12 +34,10 @@ model:
     strain_x_temp: 6.0
     strain_x_time: 8.0
     strain_x_source: 8.0
-    compound: 32.0                  # 扰动族 = 初值 ×4（experiments/47, 48）
-    cmpd_x_time: 48.0
-    cmpd_x_temp: 48.0
-    cmpd_x_medium: 48.0
-    cmpd_x_source: 48.0
-    cmpd_x_strain: 72.0
+    # 扰动族六个 λ 不在此列——它们由各成员的 pert_mult 决定：
+    #   λ = 初值 (compound 8, cmpd_x_time/temp/medium/source 12, cmpd_x_strain 18) × pert_mult
+    # 采纳点 pert_mult=4 即 compound 32 / 交互 48 / cmpd_x_strain 72（experiments/47, 48）。
+    # 每个成员实际生效的全部 λ 会写入 runs/*/members/<名>/member.json 供核对。
   booster:                          # 残差 LightGBM：残差 PCA 到 n_comp 维，每维一棵森林
     n_comp: 240
     n_estimators: 1600

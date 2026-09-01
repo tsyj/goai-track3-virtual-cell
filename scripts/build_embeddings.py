@@ -25,7 +25,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # 最终建模路径（train.py / predict.py 会 import 的东西）
 MODEL_PATH_FILES = [
-    "src/vcell/io.py", "src/vcell/models.py", "src/vcell/harness.py",
+    "src/vcell/io.py", "src/vcell/models.py", "src/vcell/pipeline.py", "src/vcell/harness.py",
     "src/vcell/design.py", "src/vcell/metrics.py",
     "scripts/train.py", "scripts/predict.py",
     "scripts/_member_defs.py", "scripts/_predict_member_impl.py", "scripts/_compose_impl.py",
@@ -68,8 +68,8 @@ def scan():
             for m in re.finditer(pat, src, re.I):
                 line = src[:m.start()].count("\n") + 1
                 ctx = src.splitlines()[line - 1].strip()
-                if ctx.lstrip().startswith("#"):
-                    continue
+                if ctx.lstrip().startswith(("#", "*", '"', "'")):
+                    continue          # 注释/文档字符串里的说明不算引用
                 hits.append({"file": rel, "line": line, "pattern": pat, "text": ctx[:160]})
     return hits, missing
 

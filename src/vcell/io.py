@@ -39,12 +39,52 @@ def _find_data_root():
 
 ROOT = _find_data_root()
 INPUT = os.path.join(ROOT, "data", "input")
-CACHE = os.path.join(ROOT, "data", "cache")
+def _cache_dir():
+    """log2 缓存目录。官方数据可能挂载为只读卷；按序尝试：
+    VCELL_CACHE_DIR → <数据根>/data/cache → 包内 .vcell_cache → 系统临时目录。"""
+    import tempfile
+    cands = []
+    env = os.environ.get("VCELL_CACHE_DIR")
+    if env:
+        cands.append(env)
+    cands.append(os.path.join(ROOT, "data", "cache"))
+    cands.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                              ".vcell_cache"))
+    cands.append(os.path.join(tempfile.gettempdir(), "vcell_cache"))
+    for d in cands:
+        try:
+            os.makedirs(d, exist_ok=True)
+            probe = os.path.join(d, ".write_probe")
+            open(probe, "w").close(); os.remove(probe)
+            return d
+        except OSError:
+            continue
+    return cands[-1]
+
+
+CACHE = _cache_dir()
 QUARANTINE = os.path.join(ROOT, "data", "quarantine")
 
-META_TRAIN = os.path.join(INPUT, "WAYB_WAYC_metadata_train_val(1).csv")
-META_TEST = os.path.join(INPUT, "WAYB_WAYC_metadata_test(1).csv")
-PROT_TRAIN = os.path.join(INPUT, "WAYB_WAYC_proteome_raw_train_val.csv")
+def _resolve(*candidates):
+    """官方文件名在不同下载渠道会带 "(1)" 之类的后缀；按候选名逐一找，最后按前缀模糊匹配。
+
+    这样评审无论把文件命名为 WAYB_WAYC_metadata_train_val.csv 还是 ..._train_val(1).csv
+    都能直接运行，不需要改代码或重命名。"""
+    import glob as _glob
+    for c in candidates:
+        p = os.path.join(INPUT, c)
+        if os.path.exists(p):
+            return p
+    stem = candidates[0].split("(")[0].replace(".csv", "")
+    hits = sorted(_glob.glob(os.path.join(INPUT, stem + "*.csv")))
+    if hits:
+        return hits[0]
+    return os.path.join(INPUT, candidates[0])      # 让报错信息指向标准名
+
+
+META_TRAIN = _resolve("WAYB_WAYC_metadata_train_val(1).csv", "WAYB_WAYC_metadata_train_val.csv")
+META_TEST = _resolve("WAYB_WAYC_metadata_test(1).csv", "WAYB_WAYC_metadata_test.csv")
+PROT_TRAIN = _resolve("WAYB_WAYC_proteome_raw_train_val.csv", "WAYB_WAYC_proteome_raw_train_val(1).csv")
 
 # Columns that define the "measurement context" a control must be matched on.
 CONTROL_KEYS = [

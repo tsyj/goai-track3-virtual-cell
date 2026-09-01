@@ -27,12 +27,31 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 from vcell import pipeline as pl                                  # noqa: E402
 
 
+
+def _code_version():
+    """git describe（若在 git 仓库内），否则回退到 REPRODUCIBILITY_MANIFEST 里的 commit。"""
+    import subprocess
+    try:
+        return subprocess.check_output(
+            ["git", "describe", "--tags", "--always", "--dirty"],
+            cwd=ROOT, text=True, stderr=subprocess.DEVNULL).strip()
+    except Exception:
+        pass
+    try:
+        import json as _json
+        m = _json.load(open(os.path.join(ROOT, "REPRODUCIBILITY_MANIFEST.json"), encoding="utf-8"))
+        return (m.get("code_version") or {}).get("commit", "unknown")
+    except Exception:
+        return "unknown"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--metadata", default=None, help="测试 metadata（核对 sample_ID 用）")
     ap.add_argument("--run-dir", default=os.path.join(ROOT, "runs", "final"))
     ap.add_argument("--config", default=os.path.join(ROOT, "configs", "final.yaml"))
     ap.add_argument("--output", default=os.path.join(ROOT, "prediction.csv"))
+    ap.add_argument("--no-validate", action="store_true", help="跳过写盘后的格式自检")
     args = ap.parse_args()
 
     cfg = pl.load_config(args.config)
@@ -76,10 +95,22 @@ def main():
         "sha256": sha, "mb": round(os.path.getsize(args.output) / 1e6, 1),
         "test_labels_used": False,
         "config": os.path.relpath(args.config, ROOT),
-    }, open(os.path.splitext(args.output)[0] + "_manifest.json", "w"), indent=1, ensure_ascii=False)
+        "config_sha256": pl.sha256_of(args.config),
+        "code_version": _code_version(),
+    }, open(os.path.splitext(args.output)[0] + "_manifest.json", "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     print(f"\n写出 {args.output}  ({os.path.getsize(args.output)/1e6:.1f} MB)")
     print(f"sha256 = {sha}")
     print(f"用时 {time.time()-t0:.0f}s")
+
+    if not args.no_validate:
+        import subprocess
+        print("\n== 自动执行提交格式自检 ==", flush=True)
+        rc = subprocess.call([sys.executable,
+                              os.path.join(ROOT, "scripts", "validate_submission.py"),
+                              "--prediction", args.output, "--config", args.config])
+        if rc != 0:
+            print("⚠ 格式自检未通过（见上）；prediction.csv 已写出，请修复后重跑自检。")
+            sys.exit(rc)
 
 
 if __name__ == "__main__":

@@ -43,6 +43,9 @@ def main():
 
     cfg = pl.load_config(args.config)
     t0 = time.time()
+    # 转导式设计说明：本模型在 train+test 行的并集上拟合设计矩阵（测试 metadata 是官方
+    # 公开发放的、不含任何蛋白真值），只有 train 行的标签可见。因此训练需要同时挂载
+    # 训练与测试 metadata 两个 CSV；缺测试 metadata 会在下面直接报 FileNotFoundError。
     P, visible, is_test = pl.build_design(cfg)
     print(f"设计矩阵：{len(P.meta)} 行（train+test 并集） 可见标签 {visible.sum()} 行 "
           f"测试 {is_test.sum()} 行 蛋白 {P.X.shape[1]}  ({time.time()-t0:.0f}s)", flush=True)
@@ -70,6 +73,12 @@ def main():
                      "secs": round(time.time() - t1)})
         print(f"    完成，用时 {time.time()-t1:.0f}s → {d}", flush=True)
 
+    if args.members and not args.finalize:
+        print(f"\n本次只训练了子集 {[d['name'] for d in done]}，未写 run.json。")
+        print("全部成员训练完成后执行：python scripts/train.py --finalize "
+              f"--output-dir {args.output_dir}")
+        return
+
     json.dump({
         "config": os.path.relpath(args.config, ROOT),
         "members": done,
@@ -79,7 +88,7 @@ def main():
         "test_sample_ids": P.meta.loc[is_test, "sample_ID"].astype(str).tolist(),
         "total_secs": round(time.time() - t0),
         "note": "标签仅来自 split_final == 'train'；测试蛋白真值未被读取。",
-    }, open(os.path.join(args.output_dir, "run.json"), "w"), indent=1, ensure_ascii=False)
+    }, open(os.path.join(args.output_dir, "run.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     print(f"\n全部完成，共 {len(done)} 个成员，总用时 {time.time()-t0:.0f}s")
     print(f"run 目录：{args.output_dir}")
 

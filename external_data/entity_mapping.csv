@@ -1,0 +1,9 @@
+entity_type,competition_id,external_id,external_source,note
+strain,BAH,BAH,1011 Yeast Genomes STD_name,同名直接映射
+strain,BAI,BAI,1011 Yeast Genomes STD_name,同名直接映射
+strain,CEK,CEK,1011 Yeast Genomes STD_name,同名直接映射
+strain,CGD,CGD,1011 Yeast Genomes STD_name,同名直接映射
+strain,CRD,CRD,1011 Yeast Genomes STD_name,官方留出菌株；同名直接映射
+strain,DHY210,S288c(reference),proxy,实验室菌株、不在 1011 集合；诊断实验按参考基因组代理并已在报告明示
+protein,<基因符号>,<系统名 ORF>,SGD_features.tab,4405/4422 经 标准名+别名 映射到系统名；17 个未匹配者不参与诊断
+compound,<名称>,CID/SMILES,PubChem PUG REST,逐条查询 URL 记录于 data/chem/pubchem.json（已否决实验）

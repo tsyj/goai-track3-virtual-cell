@@ -2,14 +2,15 @@
 
 | | |
 |---|---|
+| **作品编号** | 以官网提交记录为准（每赛段最多 3 次，最后一次为评审版本） |
 | **赛道 / 方向** | 赛道三 前沿探索 AI for Research · 算法赛题 · 方向一 虚拟细胞（AIVC） |
 | **队伍** | 有枣儿 |
 | **作品** | {{TITLE}} |
-| **最终模型** | 12 成员等权集成：分层收缩回填（`UnifiedBackfit`）＋ 残差梯度提升（`ResidualBooster`） |
+| **最终模型** | 结构化 12 成员集成：分层收缩回填（`UnifiedBackfit`）＋ 残差梯度提升（`ResidualBooster`）；自评镜像总分 0.5032（官方 val 划分口径，最终评审以组委会内部集为准） |
 | **prediction.csv SHA256** | `c6750c9796d9faf4c898cf2465ed28a3ed7b0da88daacb7d21155b37c413c6c7` |
 | **代码版本** | git tag `v2.0-semifinal` ／ commit `67450574b0fe` ／ 仓库 https://github.com/tsyj/goai-track3-virtual-cell |
 | **配置 hash** | `configs/final.yaml` SHA256 `b71d5dfea3a03c676b381d0b0e8de202…` |
-| **负责人** | 孙丽敏 · jxy23@mails.tsinghua.edu.cn |
+| **负责人** | 孙丽敏 · jxy23@mails.tsinghua.edu.cn（与官网报名账号一致） |
 | **已知限制** | 见第 6 节 |
 
 ---
@@ -33,7 +34,7 @@ python scripts/train.py \
     --config   configs/final.yaml \
     --output-dir runs/final
 
-# 3) 冻结模型推理，生成 prediction.csv
+# 3) 冻结模型推理，生成 prediction.csv（写盘后自动执行第 4 步格式自检）
 python scripts/predict.py \
     --metadata "data/input/WAYB_WAYC_metadata_test(1).csv" \
     --run-dir  runs/final \
@@ -56,11 +57,13 @@ bash scripts/smoke_test.sh
 | 步骤 | 耗时 | 峰值内存 | 说明 |
 |---|---|---|---|
 | 命令 1 | < 5 s | < 1 GB | 只做核验 |
-| 命令 2（12 成员，串行） | **约 6 小时** | 约 40 GB | 每成员约 30 min（32 线程）；成员之间互相独立，`--members` 可分批并行，8 路并行约 50 min |
+| 命令 2（12 成员，串行） | **约 6 小时** | 约 40 GB | 每成员约 30–40 min；成员互相独立，可并行：`--members <名>` 每个成员一个进程，**全部结束后执行 `python scripts/train.py --finalize --output-dir runs/final` 汇总 run.json**（子集训练不会写 run.json，防止并行互相覆盖）。11 路并行实测约 40 min |
 | 命令 3 | 约 1 min | 约 12 GB | 只做加性项重建 + 成分重构 |
 | 首次运行额外开销 | 约 2 min | — | 把 8,958×5,243 的原始 CSV 转成 log2 缓存（`data/cache/`） |
 
-无需 GPU。`runs/final` 约 300 MB。
+无需 GPU。`runs/final` 约 327 MB。
+
+**冻结产物（G 项）**：每个成员的加性项表 + booster 成分基与设计矩阵成分得分，逐文件 SHA256 见 `REPRODUCIBILITY_MANIFEST.json` 的 `artifact_checksums`；整套 `runs/final` 与我们的 `prediction.csv` 以 GitHub Release （tag `v2.0-semifinal` 的 Assets）提供稳定下载链接。本模型没有神经网络意义上的权重文件——训练在 CPU 上从头复现只需上表时间。
 
 ---
 
@@ -118,8 +121,10 @@ strain-early 顺序单独用时 3/6 折不过线，做成员却 6/6 过线，官
 **每一个**都优于对应的当前顺序成员（0.5005–0.5036 vs 0.4970–0.4999）。反过来，所有
 λ 邻域候选（低方差、与现有成员太像）对集成的贡献精确为零。
 
-最后两行说明为什么停在 12：两个候选的增益分别是 +0.00024（恰好等于 2×sem，5/6）和
-+0.00015，都没有干净过线，而每加一个成员就给复现多加约 30 分钟训练。**收益已经饱和。**
+最后两行说明为什么停在 12：两个候选分别是 +0.00024（恰好等于 2×sem，仅 5/6）与
+−0.00009，都没有过线，而每加一个成员就给复现多加约 30 分钟训练。**收益已经饱和。**
+（附注：8/27 的一次评估曾给 Br 记 +0.00015；我们在 9/2 两次独立重算均为 −0.00009，
+以可复现值为准，重算日志见 `artifacts/results/pool_real_eval.csv`。）
 
 ---
 
@@ -127,6 +132,7 @@ strain-early 顺序单独用时 3/6 折不过线，做成员却 6/6 过线，官
 
 | 项 | 做法 |
 |---|---|
+| 转导式设计 | 模型在 train+test **行**的并集上拟合设计矩阵（测试 metadata 官方公开、不含真值）；因此**训练时需要同时提供测试 metadata**。测试**标签**从未进入任何环节 |
 | 训练标签 | **只有** `split_final == 'train'` 的 5,920 行。`configs/final.yaml` 里断言行数，不符即报错退出 |
 | 验证集 | 只用于模型选择（`scripts/evaluate_val_mirror.py`，全程只评一次），不进入训练、不参与任何统计量 |
 | 测试蛋白真值 | **代码层禁读**。官方数据包里的 `WAYB_WAYC_proteome_raw_test.csv` 含全部测试真值，已移入 `data/quarantine/`；`src/vcell/io.py::load_proteome` 收到 `'test'` 直接抛 `RuntimeError`。`scripts/build_embeddings.py --check` 会**实际调用一次**来证明它确实被拒 |
@@ -142,7 +148,7 @@ strain-early 顺序单独用时 3/6 折不过线，做成员却 6/6 过线，官
 
 加性模型完全确定。LightGBM 在不同线程数下有约 1e-3 log2 量级的差异——实测同一配置
 32 线程 vs 16 线程：逐元素 rms 差 0.003，相关 0.9999995，对任何指标的影响在小数点后第五位。
-**建议复现时用 `VCELL_LGB_THREADS=32`**（我们生成提交结果时的设置），差异会更小。
+线程数只影响末位数值，默认设置即可复现到该精度；我们的正式产物在 16–32 线程混合下生成，上表的一致性核对（rms 0.0008）覆盖了这一差异。
 
 ---
 

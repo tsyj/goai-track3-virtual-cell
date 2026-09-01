@@ -1,3 +1,7 @@
+> **初赛阶段存档（2026-08-16）**：本页数字为初赛评测口径。复赛的权威数字
+> 以 `artifacts/results/final_val.csv`（阶梯）与 `val_mirror_ensembles.csv`（集成）为准，
+> 见仓库根 README 与答辩 PPT。
+
 # Demo · 从批次结构到扰动响应：分层收缩回填与残差提升的虚拟酵母模型
 
 GOAI 2026 赛道三 · 方向一（虚拟酵母扰动蛋白质组预测）。本页由 `scripts/61_demo_report.py` 从缓存结果生成，

@@ -3,7 +3,7 @@
 # 只验证环境与代码可用，不产生正式结果（正式结果见 README 的三条主命令）。
 set -euo pipefail
 cd "$(dirname "$0")/.."
-PY="${PYTHON:-python}"
+PY="${PYTHON:-$(command -v python3 || command -v python)}"
 
 echo "=== 0/4 环境 ==="
 $PY -c "import numpy,pandas,scipy,lightgbm,yaml;print('numpy',numpy.__version__,'pandas',pandas.__version__,'lightgbm',lightgbm.__version__)"

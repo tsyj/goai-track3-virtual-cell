@@ -135,7 +135,7 @@ def save_member(art, run_dir):
     json.dump({"name": art["name"], "mu_fallback": art["mu_fallback"],
                "batch_names": art["batch_names"], "pert_names": art["pert_names"],
                "booster_scale": art["booster_scale"], "config": art["config"]},
-              open(os.path.join(d, "member.json"), "w"), indent=1, ensure_ascii=False)
+              open(os.path.join(d, "member.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     return d
 
 

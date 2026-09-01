@@ -1,9 +1,14 @@
-# Python 3.9.23 (conda env "numpy1"); CPU only
+# 复现最小依赖 —— Python 3.9（我们的环境 3.9.23），纯 CPU
+# pip install -r requirements.txt 即可运行 README 的三条主命令与冒烟测试
 numpy==2.0.2
 pandas==2.3.1
 scipy==1.13.1
 lightgbm==4.6.0
-pyarrow==21.0.0
-matplotlib==3.9.4      # figures only
-rdkit==2025.9.2        # only vcell/chem.py (rejected chemistry-transfer experiments); not needed for the final model
-pytest                 # tests/
+PyYAML==6.0.2
+
+# ---- 以下为可选，不参与最终模型的训练与推理 ----
+# matplotlib==3.9.4    # 仅 scripts/experiments 出图
+# pyarrow==21.0.0      # 未被复现路径使用
+# pytest               # tests/ 单元测试
+# rdkit                # 仅 scripts/experiments 的化学相似度实验（已否决方向）；
+#                      # 我们用的是 conda 版 2025.09.2，pip 无该版本号，请勿放进必装清单

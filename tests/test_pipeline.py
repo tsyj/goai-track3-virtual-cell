@@ -1,6 +1,6 @@
 """Tests for the things that would silently corrupt a submission.
 
-Run: /home/xinyuan/anaconda3/envs/numpy1/bin/python -m pytest tests/ -q
+Run: python -m pytest tests/ -q
 """
 import os
 import sys
@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(_ROOT, "src") if os.path.isdir(os.path.join(_ROOT, "src", "vcell")) else _ROOT)
 from vcell.design import match_controls                                   # noqa: E402
 from vcell.io import load_metadata, load_proteome                         # noqa: E402
 from vcell.metrics import _average_precision, _pcc_rows, _r2_rows         # noqa: E402
