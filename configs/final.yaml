@@ -21,7 +21,8 @@ data:
   expect_n_proteins: 4422
 
 model:
-  n_pass: 6                         # 回填扫数；4/8/12/24 均实测更差（scripts/experiments/49, 55）
+  n_pass: 6
+  unseen_strain_booster_scale: 1.0   # 未见菌株行的 booster 重定标；标定见 experiments/69（待真配置确认后写入采纳值）                         # 回填扫数；4/8/12/24 均实测更差（scripts/experiments/49, 55）
   fit_offset: true                  # 每样本上样偏移；关闭为 -0.0002（55/56）
   # 因子按“粗→细”顺序回填；顺序本身是一个被实测证明重要的超参（experiments/41, 49）
   base_lambdas:                     # 收缩强度 λ；下列值为采纳点，成员可覆盖

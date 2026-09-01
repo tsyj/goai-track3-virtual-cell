@@ -86,6 +86,8 @@ def main():
         "n_test_rows": int(is_test.sum()), "n_proteins": int(P.X.shape[1]),
         "proteins": [str(x) for x in P.proteins],
         "test_sample_ids": P.meta.loc[is_test, "sample_ID"].astype(str).tolist(),
+        "seen_strains": sorted(P.meta.loc[visible, "Strains"].astype(str).unique().tolist()),
+        "test_strains": P.meta.loc[is_test, "Strains"].astype(str).tolist(),
         "total_secs": round(time.time() - t0),
         "note": "标签仅来自 split_final == 'train'；测试蛋白真值未被读取。",
     }, open(os.path.join(args.output_dir, "run.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)

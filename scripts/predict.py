@@ -73,10 +73,25 @@ def main():
 
     is_test = np.zeros(run["n_rows"], bool)
     is_test[-len(ids):] = True        # load_combined 把 test 行接在 train_val 之后
+
+    # 未见实体行的 booster 重定标（k=1.0 即关闭）；标定与验证见 experiments/69,70
+    k_strain = float(cfg["model"].get("unseen_strain_booster_scale", 1.0))
+    boost_mult = None
+    if abs(k_strain - 1.0) > 1e-9:
+        seen = set(run.get("seen_strains") or [])
+        test_strains = run.get("test_strains")
+        assert seen and test_strains, \
+            "配置启用了 unseen_strain_booster_scale，但 run.json 缺 seen_strains/test_strains；" \
+            "请重跑 scripts/train.py --finalize 刷新 run.json"
+        unseen = np.array([s not in seen for s in test_strains])
+        boost_mult = np.where(unseen, k_strain, 1.0).astype(np.float32)
+        print(f"未见菌株行 booster 重定标 k={k_strain}：作用于 {int(unseen.sum())}/{len(unseen)} 个测试行"
+              f"（菌株：{sorted(set(s for s in test_strains if s not in seen))}）", flush=True)
+
     preds = []
     for n in want:
         art = pl.load_member(args.run_dir, n)
-        preds.append(pl.predict_member(art, is_test))
+        preds.append(pl.predict_member(art, is_test, boost_mult=boost_mult))
         print(f"  {n}: 均值 {preds[-1].mean():.4f}", flush=True)
     w = cfg["ensemble"].get("weights")
     Y = pl.compose(preds, w)

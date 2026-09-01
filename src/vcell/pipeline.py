@@ -150,15 +150,23 @@ def load_member(run_dir, name):
             "V": b["V"], "Z_test": b["Z_test"], **j}
 
 
-def predict_member(art, is_test):
-    """重建该成员在测试行上的预测：加性部分 + booster 成分重构。"""
+def predict_member(art, is_test, boost_mult=None):
+    """重建该成员在测试行上的预测：加性部分 + booster 成分重构。
+
+    ``boost_mult``：可选的逐测试行 booster 乘子（形状 = 测试行数）。用于「未见实体行的
+    booster 重定标」：树模型对训练中未出现过的类别水平输出系统性偏弱（样本落入分裂默认侧、
+    预测塌向其余类别的均值），对零标签菌株的行按冻结在配置里的 k 放大补偿。
+    k 在六个无孤儿内层折上标定、在官方 val 镜像上验证，见 scripts/experiments/69,70。"""
     idx = np.where(is_test)[0]
     mu = art["mu"]
     out = np.tile(mu, (len(idx), 1)).astype(np.float32)
     for name in art["batch_names"] + list(art["pert_names"]):
         out += art["terms"][name][art["codes"][name][idx]]
     out += art["offset"][idx][:, None]          # 留出行的 offset 恒为 0
-    out += art["booster_scale"] * (art["Z_test"] @ art["V"])
+    boost = art["booster_scale"] * (art["Z_test"] @ art["V"])
+    if boost_mult is not None:
+        boost = boost * np.asarray(boost_mult, np.float32)[:, None]
+    out += boost
     return np.where(np.isfinite(out), out, art["mu_fallback"]).astype(np.float32)
 
 
