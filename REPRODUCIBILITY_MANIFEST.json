@@ -1,0 +1,294 @@
+{
+ "submission": {
+  "track": "赛道三 前沿探索 AI for Research",
+  "problem_type": "算法赛题",
+  "direction": "AIVC 虚拟细胞",
+  "team": "有枣儿",
+  "contact": "孙丽敏 · jxy23@mails.tsinghua.edu.cn"
+ },
+ "final_model": {
+  "name": "12 成员等权集成：分层收缩回填 UnifiedBackfit + 残差梯度提升 ResidualBooster",
+  "members": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "E16_pert16",
+   "F_strain_early",
+   "FB_early_plate1",
+   "FC_early_plate4",
+   "FD_early_pert2",
+   "FE_early_pert8",
+   "FE16_early_pert16"
+  ],
+  "config": "configs/final.yaml",
+  "ensemble_weights": "equal"
+ },
+ "prediction": {
+  "file": "prediction.csv",
+  "sha256": "c6750c9796d9faf4c898cf2465ed28a3ed7b0da88daacb7d21155b37c413c6c7",
+  "bytes": 177312519,
+  "n_rows": 4454,
+  "n_proteins": 4422,
+  "prediction_scale": "log2"
+ },
+ "code_version": {
+  "repository": "https://github.com/tsyj/goai-track3-virtual-cell",
+  "tag": null,
+  "commit": "67450574b0fe5c74ccd674b887a2d02079c9bb56",
+  "commit_date": "2026-09-02T04:16:28+08:00",
+  "dirty": true
+ },
+ "file_checksums": {
+  "configs/final.yaml": {
+   "sha256": "b71d5dfea3a03c676b381d0b0e8de20240c10fea652f6a9ecaaa4f69b00d0d25",
+   "bytes": 3409
+  },
+  "README.md": {
+   "sha256": "718d32419b382397e51da623201b1bc09aea29c7e42ad0d395590cc2643ad225",
+   "bytes": 10895
+  },
+  "requirements.txt": {
+   "sha256": "2a6841bfe0d8bc68124602afbd1311f781b2484b2e30af555c747f320771b514",
+   "bytes": 308
+  },
+  "scripts/build_embeddings.py": {
+   "sha256": "9fd3f1ac7a081218cddc639d694083a966b2564f6f30623e584bbddf47757191",
+   "bytes": 6009
+  },
+  "scripts/train.py": {
+   "sha256": "bcd797c9532b82710cb7985d5bfe8bd2dea1ff0ef9069ba354d0e2b724603da2",
+   "bytes": 4332
+  },
+  "scripts/predict.py": {
+   "sha256": "22cd2e5e840b1e809c8e5cbad0bf376f5d67fabca38166f070f48e200df4c438",
+   "bytes": 3652
+  },
+  "scripts/validate_submission.py": {
+   "sha256": "d13351ddc8dc726e519988bb17689d693f8c7ee1bb7c7218ec4bf400d53b6ddf",
+   "bytes": 4716
+  },
+  "scripts/smoke_test.sh": {
+   "sha256": "6806261d3257b37121148a62405cdbc96892e279ec7be34c128e9a4ce56b2d4b",
+   "bytes": 1604
+  },
+  "src/vcell/models.py": {
+   "sha256": "53fcf51a80c4f1e184e5f3a960c5ebd519ef8c7c78dd7664c534940b5e8b167d",
+   "bytes": 21346
+  },
+  "src/vcell/pipeline.py": {
+   "sha256": "9b211dd22904ebb32ee226725ef9ac972219ef1f59a3baec0d6271ca5990760a",
+   "bytes": 8189
+  },
+  "src/vcell/io.py": {
+   "sha256": "9634fe48c3c751a11d29e7a46de8312ba5572cd318fc6cacb4ea93862ec6bae9",
+   "bytes": 6053
+  },
+  "src/vcell/harness.py": {
+   "sha256": "d7407dde926e99874bb267b225a605b1c42803a9f0652adabc3fe73df47055fb",
+   "bytes": 6589
+  },
+  "src/vcell/metrics.py": {
+   "sha256": "11987954f44617680fbb48c90696e94d5468c47ecadc1f0f88293a3c2d8b49b5",
+   "bytes": 12432
+  },
+  "src/vcell/design.py": {
+   "sha256": "1c4d5286c5931a4b0bfd3120ebbc1236441107f336d0079e0b36181811844a5f",
+   "bytes": 4667
+  },
+  "external_data/source_manifest.json": {
+   "sha256": "e188db7df4c7f661427292b2b4a64f0c1b098b3d90d54cd97d87633013ee66e6",
+   "bytes": 7923
+  }
+ },
+ "artifact_checksums": {
+  "A": {
+   "additive.npz": {
+    "sha256": "624f5464aa51381c269c53c59c93357842dcc6e694937b18ad701ec19c0cd91a",
+    "bytes": 20559710
+   },
+   "booster.npz": {
+    "sha256": "de58640b77b18a83f01fe9ad640486893e86a5622e94e223170b3edd9e764b31",
+    "bytes": 7934988
+   },
+   "member.json": {
+    "sha256": "8ab40e5764831d4ac8eb56584609db296756c7bff32613256e873bd36b77fa2c",
+    "bytes": 1119
+   }
+  },
+  "B": {
+   "additive.npz": {
+    "sha256": "98b754e30d01369c34e79f35c810cb03a57d8cc17951369f04115a1d531b13ac",
+    "bytes": 20563238
+   },
+   "booster.npz": {
+    "sha256": "57055d78422f163e8025ebc644ce4cd70031daaad0f6d26de12972e5b78ed9d2",
+    "bytes": 7934897
+   },
+   "member.json": {
+    "sha256": "2c5faf3a0425b4f7a00b63bd3e12c16951d86d2e3ae1640636f204c8b250d606",
+    "bytes": 1119
+   }
+  },
+  "C": {
+   "additive.npz": {
+    "sha256": "577eb875b2781a196fef20549ae10af4bf9704d8698353a8a42373297899055c",
+    "bytes": 20560008
+   },
+   "booster.npz": {
+    "sha256": "2858f85cd507de4ce65193ab486d5c6bc0fcf39e6a38355de84be9d2dc5932b5",
+    "bytes": 7934817
+   },
+   "member.json": {
+    "sha256": "7b5cc432c78c10f5c42964276e2a5dc8e8ff9dca07e92106a2bcdef2cd4dcd91",
+    "bytes": 1119
+   }
+  },
+  "D": {
+   "additive.npz": {
+    "sha256": "a911aa536f6283d04f8acce62f1593c99be4b9fbc5eebd71b1675d4030212a69",
+    "bytes": 20564211
+   },
+   "booster.npz": {
+    "sha256": "fda843e33100e820e97bafc23b1b119074216721d4195895d4701326e902d66c",
+    "bytes": 7934141
+   },
+   "member.json": {
+    "sha256": "5e2ec85cf3ff4b21f15107f60dd66d0b37c38345d1b1956ae91b40c747a16311",
+    "bytes": 1119
+   }
+  },
+  "E": {
+   "additive.npz": {
+    "sha256": "cfccedcc7b7d6ec99f75fd8d10846afff859f4ef566f8884ce0a0d5c8ad41f6e",
+    "bytes": 20564260
+   },
+   "booster.npz": {
+    "sha256": "d105ac275684a68ce65838301822d870951ab912ed6871cad951881b30457c0c",
+    "bytes": 7935404
+   },
+   "member.json": {
+    "sha256": "b99e7ce55c8f8dfe2dc703f0edaab8a545d3811ffedb8940e5eae7868a1c2d60",
+    "bytes": 1120
+   }
+  },
+  "E16_pert16": {
+   "additive.npz": {
+    "sha256": "ff57ff6b85b037f1db7a7af2786f722d38c55966720842d81353d45be45d686e",
+    "bytes": 20566133
+   },
+   "booster.npz": {
+    "sha256": "0c5767d48dcefba7aca35a9f493f63bb0132a8cadfd1d392a5e2815c54ff1f47",
+    "bytes": 7934182
+   },
+   "member.json": {
+    "sha256": "d8e12fc81c0e95098075038fd6c199f63ffd213b8db4f3fe42fffe1bf32d40e5",
+    "bytes": 1134
+   }
+  },
+  "FB_early_plate1": {
+   "additive.npz": {
+    "sha256": "ef7414d7c1b2c54ea9eb0831cd9c0ca29f0a5c6afe251a916bb2d4841e1726cb",
+    "bytes": 20563023
+   },
+   "booster.npz": {
+    "sha256": "0f696d3a6bb331ab169c3d33a3b0a5e6bdde845149ce269e7deeb6a372654282",
+    "bytes": 7934737
+   },
+   "member.json": {
+    "sha256": "78428a9e727ba95ea9dfc99f1d652f7bba3e90f47a0842c41878223a113fa373",
+    "bytes": 1133
+   }
+  },
+  "FC_early_plate4": {
+   "additive.npz": {
+    "sha256": "77d6789f631161899b25bbfa2776083b9d80dddc1bd84a1a267e6a26b413fc88",
+    "bytes": 20559498
+   },
+   "booster.npz": {
+    "sha256": "87b6a337f0c932ed6d67f40f3ef2d5cc238ed9abe4b8417374061b6a617c8dbf",
+    "bytes": 7935029
+   },
+   "member.json": {
+    "sha256": "f5c2dc03da0b78aef73749dc3bb15d4820b5275115b8f18e478a62228edc6bbf",
+    "bytes": 1133
+   }
+  },
+  "FD_early_pert2": {
+   "additive.npz": {
+    "sha256": "d5fcce10a505eae5e1bfd92699175e97a12b86393ae157565012ee446cbfac92",
+    "bytes": 20564912
+   },
+   "booster.npz": {
+    "sha256": "ae641c4d497310baf472062e6437020d765810ee984ce1b2f0ac6e80292d67bf",
+    "bytes": 7934564
+   },
+   "member.json": {
+    "sha256": "50ac468ec66ba0e5f5754da622be82e51083871de83edd1fc8ae5912486c1df9",
+    "bytes": 1132
+   }
+  },
+  "FE16_early_pert16": {
+   "additive.npz": {
+    "sha256": "d20c19548d1965b78bafed67ea186fdca2bfa11ed34ddd8da5be374163eb9cb7",
+    "bytes": 20567302
+   },
+   "booster.npz": {
+    "sha256": "93e94910cd731e1d974a7da325478738bbe03db808b769e05a1a8195e00fdb2f",
+    "bytes": 7935366
+   },
+   "member.json": {
+    "sha256": "20504726219c307d8c8f6768b4f51c1b2a2ab61f6e50ea3027ec4aa1e0df8e1f",
+    "bytes": 1141
+   }
+  },
+  "FE_early_pert8": {
+   "additive.npz": {
+    "sha256": "25ca8e6a9b0dbba5aabb196d5c354bbec00b61ea20077857d9edb4cf5e3f5678",
+    "bytes": 20565093
+   },
+   "booster.npz": {
+    "sha256": "535b03ee630cd978b2b23271a84d5c99b7420d7a996bf67dd834e1b85c0f2b79",
+    "bytes": 7935776
+   },
+   "member.json": {
+    "sha256": "b005206c011763ee5f92c7a8781a9c8f5ae76769816d210ab468a39eaacc78fb",
+    "bytes": 1133
+   }
+  },
+  "F_strain_early": {
+   "additive.npz": {
+    "sha256": "69977c746de7fcb1936c97c9d6648acfb00f679dbb075be20913017abffbadbf",
+    "bytes": 20560343
+   },
+   "booster.npz": {
+    "sha256": "022188fc7d7a3464d538d663419e3abb45001ebe8ee02f7bfe3614e4b92ff4d0",
+    "bytes": 7934537
+   },
+   "member.json": {
+    "sha256": "2dcd6e638d439362e96176b1bfc0df4297476cad8654419697a635d0a64f00f1",
+    "bytes": 1132
+   }
+  }
+ },
+ "data_boundary": {
+  "training_labels": "只用 split_final == 'train' 的 5,920 行",
+  "validation": "只用于模型选择（evaluate_val_mirror.py），不进入训练与任何统计量",
+  "test_ground_truth": "代码层禁读：vcell/io.py::load_proteome('test') 抛 RuntimeError；build_embeddings.py --check 会实际调用一次验证",
+  "protein_filter": "仅用 train 行计算缺失率，>= 0.80 删除 → 4,422 个蛋白",
+  "external_data_in_final_model": "none"
+ },
+ "environment": {
+  "python": "3.9.23",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.35",
+  "note": "无 GPU；LightGBM 线程数影响末位数值，建议 VCELL_LGB_THREADS=32"
+ },
+ "known_limitations": [
+  "未见菌株的每蛋白基线偏移 b（rms 0.34–0.36）不可从标签估计；公开基因组只能覆盖其方差的 7.7%，实测提分约 +0.0003（experiments/63-65）",
+  "见过菌株的划分已贴到测量噪声地板（残差/地板 = 1.21–1.22）",
+  "评分口径不确定性（0.362–0.573）远大于建模改进幅度（约 0.02）",
+  "12 成员复现需约 6 小时 CPU；train.py --members 支持分批并行",
+  "DHY210 无公开基因组，诊断实验按 S288c 代理；不影响最终模型"
+ ]
+}

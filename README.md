@@ -7,7 +7,7 @@
 | **作品** | {{TITLE}} |
 | **最终模型** | 12 成员等权集成：分层收缩回填（`UnifiedBackfit`）＋ 残差梯度提升（`ResidualBooster`） |
 | **prediction.csv SHA256** | `c6750c9796d9faf4c898cf2465ed28a3ed7b0da88daacb7d21155b37c413c6c7` |
-| **代码版本** | git tag `{{TAG}}` ／ commit `{{COMMIT}}` ／ 仓库 https://github.com/tsyj/goai-track3-virtual-cell |
+| **代码版本** | git tag `v2.0-semifinal` ／ commit `67450574b0fe` ／ 仓库 https://github.com/tsyj/goai-track3-virtual-cell |
 | **配置 hash** | `configs/final.yaml` SHA256 `b71d5dfea3a03c676b381d0b0e8de202…` |
 | **负责人** | 孙丽敏 · jxy23@mails.tsinghua.edu.cn |
 | **已知限制** | 见第 6 节 |
