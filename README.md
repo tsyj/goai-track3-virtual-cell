@@ -5,7 +5,7 @@
 | **作品编号** | 以官网提交记录为准（每赛段最多 3 次，最后一次为评审版本） |
 | **赛道 / 方向** | 赛道三 前沿探索 AI for Research · 算法赛题 · 方向一 虚拟细胞（AIVC） |
 | **队伍** | 有枣儿 |
-| **作品** | {{TITLE}} |
+| **作品** | 从批次结构到扰动响应：分层收缩回填与残差提升的虚拟酵母模型 |
 | **最终模型** | 结构化 12 成员集成：分层收缩回填（`UnifiedBackfit`）＋ 残差梯度提升（`ResidualBooster`）；自评镜像总分 0.5032（官方 val 划分口径，最终评审以组委会内部集为准） |
 | **prediction.csv SHA256** | `c6750c9796d9faf4c898cf2465ed28a3ed7b0da88daacb7d21155b37c413c6c7` |
 | **代码版本** | git tag `v2.0-semifinal` ／ commit `67450574b0fe` ／ 仓库 https://github.com/tsyj/goai-track3-virtual-cell |
