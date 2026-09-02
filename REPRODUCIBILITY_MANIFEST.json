@@ -27,7 +27,7 @@
  },
  "prediction": {
   "file": "prediction.csv",
-  "sha256": "f65278c35a6a44d0a58cc6bea7d75730b542641b33b3d6c858e860081cf23903",
+  "sha256": "5ad4d9d4e58ef3c704ef589315867a5d6ef325952379529586bc17d03091e59d",
   "bytes": 177312519,
   "n_rows": 4454,
   "n_proteins": 4422,
@@ -35,20 +35,20 @@
  },
  "code_version": {
   "repository": "https://github.com/tsyj/goai-track3-virtual-cell",
-  "tag": "v2.1-semifinal",
+  "tag": "v2.2-semifinal",
   "note": "tag 指向包含本清单的提交；commit 字段为其父提交（清单无法包含自身的哈希）；以 file_checksums 为版本证明",
-  "commit": "7952ab0c62c1558b31012b77358af57e8fcea8b3",
-  "commit_date": "2026-09-02T15:46:20+08:00",
-  "dirty": true
+  "commit": "5dc36e643815221ed93f1a3c952d098856bec07c",
+  "commit_date": "2026-09-02T19:13:23+08:00",
+  "dirty": false
  },
  "file_checksums": {
   "configs/final.yaml": {
-   "sha256": "1d412d6801c14b7083d91ffe9b9f9f641b4bb0e0c5d61e15d849b65309bbfb9c",
-   "bytes": 3899
+   "sha256": "de96774fd9432d3ba51836ae4340cac30f63246313563cd8e70ae42fbec08085",
+   "bytes": 4017
   },
   "README.md": {
-   "sha256": "6bd1797199be1180980e9a742407f4251fd9cbd1517816f39ac1cf4a1ddcbcf9",
-   "bytes": 12379
+   "sha256": "dbd42926e9e9383b29260ef8233c9245571157294b385db7d555151a92bd4fd2",
+   "bytes": 12327
   },
   "requirements.txt": {
    "sha256": "5f1de188623688e8f5ac2af1b94c6049e58819d72b39a3a3771ed00007972027",
@@ -63,8 +63,8 @@
    "bytes": 5152
   },
   "scripts/predict.py": {
-   "sha256": "fe9dd2c32d4efdbeb948cbe5324e6f9bbf60cb024e4ae341c723f8b6d80797fc",
-   "bytes": 6802
+   "sha256": "e535fce98f284e5503afb2d8117bf0d91cc1ff8f5923fa72369aa4d731f615ca",
+   "bytes": 7171
   },
   "scripts/validate_submission.py": {
    "sha256": "d13351ddc8dc726e519988bb17689d693f8c7ee1bb7c7218ec4bf400d53b6ddf",
@@ -79,8 +79,8 @@
    "bytes": 21346
   },
   "src/vcell/pipeline.py": {
-   "sha256": "8a8e23610a7f929773894ea6ca4b350706093f4501683d629d017bf66d37c52c",
-   "bytes": 10237
+   "sha256": "89ecaa6e4c51979cce55fe71418cd63882fe7b7976c9d2356b119d14d2cc39a5",
+   "bytes": 10562
   },
   "src/vcell/io.py": {
    "sha256": "4fe53f434a6f65f956314e1332ffe62bb8cdcdec562c894a4e91a0f64a05ac46",
