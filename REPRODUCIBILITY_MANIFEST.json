@@ -37,14 +37,14 @@
   "repository": "https://github.com/tsyj/goai-track3-virtual-cell",
   "tag": "v2.3-semifinal",
   "note": "tag 指向包含本清单的提交；commit 字段为其父提交（清单无法包含自身的哈希）；以 file_checksums 为版本证明",
-  "commit": "cc82c00d47a3b6be877db963e4b8cff06bd58955",
-  "commit_date": "2026-09-03T05:00:24+08:00",
+  "commit": "86eba17a8bc5ca570c4f4a3aca28dc1f9c596e54",
+  "commit_date": "2026-09-03T05:07:13+08:00",
   "dirty": false
  },
  "file_checksums": {
   "configs/final.yaml": {
-   "sha256": "5e014e4d02ae4b3f3c02d36f9ec4f9a4508c7a8c6e825d56dc525c9f242859ef",
-   "bytes": 4265
+   "sha256": "ba11dc26917ed80645270360567e60e39faa17484d7c9c5f76b3dbe98308111b",
+   "bytes": 4343
   },
   "README.md": {
    "sha256": "fb2033d778d39af4ae1890b6a8b88aa9ae986ac7119be5a53af759f6d07025e2",
