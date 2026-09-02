@@ -125,6 +125,18 @@
    "bytes": 27279,
    "sha256": "379400b239ad73ac7f067df7735f547c18aa8217737e6bf8fdcb77958e958555",
    "used_in_final_model": "否 —— 化学相似度迁移实验，结论为负（experiments/05）"
+  },
+  {
+   "name": "PNAS 2024 species-wide yeast proteomes (942 isolates, DIA-NN 1.8, SC medium)",
+   "url": "https://zenodo.org/records/10567083/files/data_upload.zip?download=1",
+   "doi": "10.5281/zenodo.10567083",
+   "version": "zenodo v1",
+   "download_date": "2026-09-02",
+   "license": "CC-BY-4.0",
+   "sha256": "a44335e5d9174a14bd67687df4f4e86c535d0eb52132b61201b539c0ab6fea38",
+   "used_in_final_model": "NO — diagnostic only (scripts/experiments/87_external_proteome_b.py)",
+   "download_script": "external_data/download_pnas2024_proteomes.sh",
+   "entity_mapping": "strains by 1011-project code (BAH/BAI/CEK/CGD/CRD); proteins ORF→symbol via SGD_features.tab"
   }
  ]
 }
