@@ -195,13 +195,15 @@ def sha256_of(path, chunk=1 << 20):
     return h.hexdigest()
 
 
-def effect_expansion(P, meta, beta, tau):
+def effect_expansion(P, meta, beta, tau, row_mask=None):
     """大效应非线性扩张（后处理，作用于集成均值）。
 
     收缩估计把大扰动效应压得偏小；对模型隐含的效应 D = P − C（C = 同上下文对照孔预测
     的均值）做 h(D) = D·(1 + β·min(|D|/τ, 1)²)：小效应不动，|D| ≥ τ 的效应放大 (1+β)。
-    只改处理孔，不改对照孔。标定：六无孤儿内层折 6/6（+0.0005~0.0007），官方 val 镜像 +0.0006。
-    见 scripts/experiments/77, 80。"""
+    只改处理孔，不改对照孔；``row_mask`` 限定作用行（采纳：只作用于零标签菌株的行——
+    可见菌株的行已校准到噪声地板，扩张只添噪；零标签菌株的行系统性欠离散）。
+    标定：六无孤儿内层折 +0.0020±0.0002（6/6，9.8×sem），官方 val 镜像 0.5032→0.5050。
+    见 scripts/experiments/77, 80, 83, 84, 85。"""
     P = np.asarray(P, np.float32)
     ctrl = meta["is_control"].to_numpy()
     ctx = meta["ctx_key"].astype(str).to_numpy()
@@ -212,5 +214,8 @@ def effect_expansion(P, meta, beta, tau):
         C[rows] = P[g.i.to_numpy()].mean(0); has[rows] = True
     D = np.where(has[:, None], P - C, 0.0)
     gmul = 1.0 + float(beta) * np.minimum(np.abs(D) / float(tau), 1.0) ** 2
-    out = np.where(has[:, None] & ~ctrl[:, None], C + D * gmul, P).astype(np.float32)
-    return out, int(has.sum()), int((has & ~ctrl).sum())
+    apply = has & ~ctrl
+    if row_mask is not None:
+        apply = apply & np.asarray(row_mask, bool)
+    out = np.where(apply[:, None], C + D * gmul, P).astype(np.float32)
+    return out, int(has.sum()), int(apply.sum())

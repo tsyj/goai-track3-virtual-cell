@@ -102,8 +102,14 @@ def main():
         Pm = np.mean(preds, 0).astype(np.float32)
         design = pl.build_design(cfg)[0]
         assert len(design.meta) == run["n_rows"], "run.json 行数与当前设计矩阵不一致"
-        Pm, n_has, n_treated = pl.effect_expansion(Pm, design.meta, beta, tau)
-        print(f"大效应扩张 β={beta} τ={tau}：{n_has}/{len(Pm)} 行有同上下文对照，处理孔 {n_treated} 行", flush=True)
+        rows_opt = str(exp_cfg.get("rows", "all"))
+        mask = None
+        if rows_opt == "unseen_strain":
+            seen = set(run.get("seen_strains") or [])
+            assert seen, "run.json 缺 seen_strains；请重跑 scripts/train.py --finalize"
+            mask = ~design.meta["Strains"].astype(str).isin(seen).to_numpy()
+        Pm, n_has, n_treated = pl.effect_expansion(Pm, design.meta, beta, tau, row_mask=mask)
+        print(f"大效应扩张 β={beta} τ={tau} rows={rows_opt}：{n_has}/{len(Pm)} 行有同上下文对照，实际作用 {n_treated} 行", flush=True)
         preds = [Pm[is_test]]
     w = cfg["ensemble"].get("weights")
     Y = pl.compose(preds, w)
