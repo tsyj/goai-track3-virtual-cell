@@ -88,11 +88,23 @@ def main():
         print(f"未见菌株行 booster 重定标 k={k_strain}：作用于 {int(unseen.sum())}/{len(unseen)} 个测试行"
               f"（菌株：{sorted(set(s for s in test_strains if s not in seen))}）", flush=True)
 
+    exp_cfg = cfg["model"].get("effect_expansion") or {}
+    beta, tau = float(exp_cfg.get("beta", 0.0)), float(exp_cfg.get("tau", 1.0))
+    all_rows = np.arange(run["n_rows"]) if beta > 0 else np.where(is_test)[0]
     preds = []
     for n in want:
         art = pl.load_member(args.run_dir, n)
-        preds.append(pl.predict_member(art, is_test, boost_mult=boost_mult))
-        print(f"  {n}: 均值 {preds[-1].mean():.4f}", flush=True)
+        bm = None if boost_mult is None or beta > 0 else boost_mult
+        preds.append(pl.predict_rows(art, all_rows, boost_mult=bm))
+        print(f"  {n}: 均值 {preds[-1][is_test[all_rows]].mean():.4f}", flush=True)
+    if beta > 0:
+        # 大效应非线性扩张：作用于集成均值，需要全部行（对照孔可能是训练行）的预测与 metadata
+        Pm = np.mean(preds, 0).astype(np.float32)
+        design = pl.build_design(cfg)[0]
+        assert len(design.meta) == run["n_rows"], "run.json 行数与当前设计矩阵不一致"
+        Pm, n_has, n_treated = pl.effect_expansion(Pm, design.meta, beta, tau)
+        print(f"大效应扩张 β={beta} τ={tau}：{n_has}/{len(Pm)} 行有同上下文对照，处理孔 {n_treated} 行", flush=True)
+        preds = [Pm[is_test]]
     w = cfg["ensemble"].get("weights")
     Y = pl.compose(preds, w)
 

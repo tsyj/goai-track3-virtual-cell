@@ -1,0 +1,7 @@
+设计矩阵：13412 行（train+test 并集） 可见标签 5920 行 测试 4454 行 蛋白 4422  (1s)
+[1/1] 训练成员 FE16_early_pert16
+    booster: {'n_comp': 240, 'n_estimators': 1600, 'learning_rate': 0.015, 'num_leaves': 31, 'seeds': [0, 1, 2]}  成分 240  解释残差方差 0.594
+    完成，用时 2364s → runs/final/members/FE16_early_pert16
+
+全部完成，共 1 个成员，总用时 2365s
+run 目录：runs/final

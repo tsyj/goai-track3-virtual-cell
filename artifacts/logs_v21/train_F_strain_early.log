@@ -1,0 +1,7 @@
+设计矩阵：13412 行（train+test 并集） 可见标签 5920 行 测试 4454 行 蛋白 4422  (1s)
+[1/1] 训练成员 F_strain_early
+    booster: {'n_comp': 240, 'n_estimators': 1600, 'learning_rate': 0.015, 'num_leaves': 31, 'seeds': [0, 1, 2]}  成分 240  解释残差方差 0.575
+    完成，用时 1933s → runs/final_v21/members/F_strain_early
+
+本次只训练了子集 ['F_strain_early']，未写 run.json。
+全部成员训练完成后执行：python scripts/train.py --finalize --output-dir runs/final_v21

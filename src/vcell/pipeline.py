@@ -115,7 +115,7 @@ def fit_member(cfg, member, P, visible, is_test, n_jobs=16, verbose=True):
         "mu": um.mu, "mu_fallback": float(um.mu_fallback),
         "offset": um.offset,
         "V": rb.V.astype(np.float32),
-        "Z_test": Z[is_test].astype(np.float32),
+        "Z_all": Z.astype(np.float32),          # 全部行的成分得分（后处理需要对照孔的预测）
         "booster_scale": float(rb.scale),
         "config": {"order": [a for a, _, _ in batch],
                    "lam": {a: float(l) for a, _, l in batch + pert},
@@ -131,7 +131,7 @@ def save_member(art, run_dir):
                         mu=art["mu"], offset=art["offset"],
                         **{f"T__{k}": v for k, v in art["terms"].items()},
                         **{f"C__{k}": v for k, v in art["codes"].items()})
-    np.savez_compressed(os.path.join(d, "booster.npz"), V=art["V"], Z_test=art["Z_test"])
+    np.savez_compressed(os.path.join(d, "booster.npz"), V=art["V"], Z_all=art["Z_all"])
     json.dump({"name": art["name"], "mu_fallback": art["mu_fallback"],
                "batch_names": art["batch_names"], "pert_names": art["pert_names"],
                "booster_scale": art["booster_scale"], "config": art["config"]},
@@ -147,23 +147,29 @@ def load_member(run_dir, name):
     return {"name": name, "mu": a["mu"], "offset": a["offset"],
             "terms": {k[3:]: a[k] for k in a.files if k.startswith("T__")},
             "codes": {k[3:]: a[k] for k in a.files if k.startswith("C__")},
-            "V": b["V"], "Z_test": b["Z_test"], **j}
+            "V": b["V"], "Z_all": b["Z_all"], **j}
 
 
 def predict_member(art, is_test, boost_mult=None):
+    """兼容入口：只算测试行。见 predict_rows。"""
+    idx = np.where(is_test)[0]
+    return predict_rows(art, idx, boost_mult=boost_mult)
+
+
+def predict_rows(art, idx, boost_mult=None):
     """重建该成员在测试行上的预测：加性部分 + booster 成分重构。
 
     ``boost_mult``：可选的逐测试行 booster 乘子（形状 = 测试行数）。用于「未见实体行的
     booster 重定标」：树模型对训练中未出现过的类别水平输出系统性偏弱（样本落入分裂默认侧、
     预测塌向其余类别的均值），对零标签菌株的行按冻结在配置里的 k 放大补偿。
     k 在六个无孤儿内层折上标定、在官方 val 镜像上验证，见 scripts/experiments/69,70。"""
-    idx = np.where(is_test)[0]
+    idx = np.asarray(idx)
     mu = art["mu"]
     out = np.tile(mu, (len(idx), 1)).astype(np.float32)
     for name in art["batch_names"] + list(art["pert_names"]):
         out += art["terms"][name][art["codes"][name][idx]]
     out += art["offset"][idx][:, None]          # 留出行的 offset 恒为 0
-    boost = art["booster_scale"] * (art["Z_test"] @ art["V"])
+    boost = art["booster_scale"] * (art["Z_all"][idx] @ art["V"])
     if boost_mult is not None:
         boost = boost * np.asarray(boost_mult, np.float32)[:, None]
     out += boost
@@ -187,3 +193,24 @@ def sha256_of(path, chunk=1 << 20):
                 break
             h.update(b)
     return h.hexdigest()
+
+
+def effect_expansion(P, meta, beta, tau):
+    """大效应非线性扩张（后处理，作用于集成均值）。
+
+    收缩估计把大扰动效应压得偏小；对模型隐含的效应 D = P − C（C = 同上下文对照孔预测
+    的均值）做 h(D) = D·(1 + β·min(|D|/τ, 1)²)：小效应不动，|D| ≥ τ 的效应放大 (1+β)。
+    只改处理孔，不改对照孔。标定：六无孤儿内层折 6/6（+0.0005~0.0007），官方 val 镜像 +0.0006。
+    见 scripts/experiments/77, 80。"""
+    P = np.asarray(P, np.float32)
+    ctrl = meta["is_control"].to_numpy()
+    ctx = meta["ctx_key"].astype(str).to_numpy()
+    C = np.zeros_like(P); has = np.zeros(len(P), bool)
+    df = pd.DataFrame({"ctx": ctx, "i": np.arange(len(P))})
+    for c, g in df[ctrl].groupby("ctx"):
+        rows = df.index[df.ctx == c].to_numpy()
+        C[rows] = P[g.i.to_numpy()].mean(0); has[rows] = True
+    D = np.where(has[:, None], P - C, 0.0)
+    gmul = 1.0 + float(beta) * np.minimum(np.abs(D) / float(tau), 1.0) ** 2
+    out = np.where(has[:, None] & ~ctrl[:, None], C + D * gmul, P).astype(np.float32)
+    return out, int(has.sum()), int((has & ~ctrl).sum())

@@ -27,7 +27,7 @@
  },
  "prediction": {
   "file": "prediction.csv",
-  "sha256": "c6750c9796d9faf4c898cf2465ed28a3ed7b0da88daacb7d21155b37c413c6c7",
+  "sha256": "f65278c35a6a44d0a58cc6bea7d75730b542641b33b3d6c858e860081cf23903",
   "bytes": 177312519,
   "n_rows": 4454,
   "n_proteins": 4422,
@@ -35,19 +35,19 @@
  },
  "code_version": {
   "repository": "https://github.com/tsyj/goai-track3-virtual-cell",
-  "tag": "v2.0-semifinal",
+  "tag": "v2.1-semifinal",
   "note": "tag 指向包含本清单的提交；commit 字段为其父提交（清单无法包含自身的哈希）；以 file_checksums 为版本证明",
-  "commit": "bd7d0591102484bae9b6b5f352128b9dc7c7b9c8",
-  "commit_date": "2026-09-02T15:45:57+08:00",
-  "dirty": false
+  "commit": "7952ab0c62c1558b31012b77358af57e8fcea8b3",
+  "commit_date": "2026-09-02T15:46:20+08:00",
+  "dirty": true
  },
  "file_checksums": {
   "configs/final.yaml": {
-   "sha256": "2f13f042148758548d13148e0d3926f5fe442dc720fd1c7b06818d97a99f2cbc",
-   "bytes": 3738
+   "sha256": "1d412d6801c14b7083d91ffe9b9f9f641b4bb0e0c5d61e15d849b65309bbfb9c",
+   "bytes": 3899
   },
   "README.md": {
-   "sha256": "6feb8c5ec95cd5e7b0d4c893af0d600931c0b933d988baf082285567389ee8a0",
+   "sha256": "6bd1797199be1180980e9a742407f4251fd9cbd1517816f39ac1cf4a1ddcbcf9",
    "bytes": 12379
   },
   "requirements.txt": {
@@ -63,8 +63,8 @@
    "bytes": 5152
   },
   "scripts/predict.py": {
-   "sha256": "4412830b115a105c622d245eea0a2d065ed3b7bf46c95cde66cbd19d368a1c89",
-   "bytes": 5925
+   "sha256": "fe9dd2c32d4efdbeb948cbe5324e6f9bbf60cb024e4ae341c723f8b6d80797fc",
+   "bytes": 6802
   },
   "scripts/validate_submission.py": {
    "sha256": "d13351ddc8dc726e519988bb17689d693f8c7ee1bb7c7218ec4bf400d53b6ddf",
@@ -79,8 +79,8 @@
    "bytes": 21346
   },
   "src/vcell/pipeline.py": {
-   "sha256": "67574a229af3e067895191487abbdb25ee3c7962d4194f228da087ae7aa84544",
-   "bytes": 8807
+   "sha256": "8a8e23610a7f929773894ea6ca4b350706093f4501683d629d017bf66d37c52c",
+   "bytes": 10237
   },
   "src/vcell/io.py": {
    "sha256": "4fe53f434a6f65f956314e1332ffe62bb8cdcdec562c894a4e91a0f64a05ac46",
@@ -110,8 +110,8 @@
     "bytes": 20559710
    },
    "booster.npz": {
-    "sha256": "de58640b77b18a83f01fe9ad640486893e86a5622e94e223170b3edd9e764b31",
-    "bytes": 7934988
+    "sha256": "2c97b0c583df1ecce71b3dda26c7ebbc26d210741425ec87010db1fa343138e6",
+    "bytes": 15956634
    },
    "member.json": {
     "sha256": "8ab40e5764831d4ac8eb56584609db296756c7bff32613256e873bd36b77fa2c",
@@ -124,8 +124,8 @@
     "bytes": 20563238
    },
    "booster.npz": {
-    "sha256": "57055d78422f163e8025ebc644ce4cd70031daaad0f6d26de12972e5b78ed9d2",
-    "bytes": 7934897
+    "sha256": "5657bd5c733a0e7950e4fabd6e2a33468bdbeb8594ce594c4c226995a8a517c5",
+    "bytes": 15955938
    },
    "member.json": {
     "sha256": "2c5faf3a0425b4f7a00b63bd3e12c16951d86d2e3ae1640636f204c8b250d606",
@@ -138,8 +138,8 @@
     "bytes": 20560008
    },
    "booster.npz": {
-    "sha256": "2858f85cd507de4ce65193ab486d5c6bc0fcf39e6a38355de84be9d2dc5932b5",
-    "bytes": 7934817
+    "sha256": "e672df3e9f6989480aa395bfbeb73c161a653870617b63908201bb64ae1910ec",
+    "bytes": 15955214
    },
    "member.json": {
     "sha256": "7b5cc432c78c10f5c42964276e2a5dc8e8ff9dca07e92106a2bcdef2cd4dcd91",
@@ -152,8 +152,8 @@
     "bytes": 20564211
    },
    "booster.npz": {
-    "sha256": "fda843e33100e820e97bafc23b1b119074216721d4195895d4701326e902d66c",
-    "bytes": 7934141
+    "sha256": "e472be8935fe28f95c629b8bdb5ee5bd9feb97bef0a3c5b69a89724e9e774810",
+    "bytes": 15953933
    },
    "member.json": {
     "sha256": "5e2ec85cf3ff4b21f15107f60dd66d0b37c38345d1b1956ae91b40c747a16311",
@@ -166,8 +166,8 @@
     "bytes": 20564260
    },
    "booster.npz": {
-    "sha256": "d105ac275684a68ce65838301822d870951ab912ed6871cad951881b30457c0c",
-    "bytes": 7935404
+    "sha256": "08ddacbbe32eeafd788798c46c7b7337019b773fcc9768547ff9b255204540c4",
+    "bytes": 15957912
    },
    "member.json": {
     "sha256": "b99e7ce55c8f8dfe2dc703f0edaab8a545d3811ffedb8940e5eae7868a1c2d60",
@@ -180,8 +180,8 @@
     "bytes": 20566133
    },
    "booster.npz": {
-    "sha256": "0c5767d48dcefba7aca35a9f493f63bb0132a8cadfd1d392a5e2815c54ff1f47",
-    "bytes": 7934182
+    "sha256": "513081a36a132c9b53e9216e62b2f6ecaa0924426195e1433799f9ad16861a8c",
+    "bytes": 15957597
    },
    "member.json": {
     "sha256": "d8e12fc81c0e95098075038fd6c199f63ffd213b8db4f3fe42fffe1bf32d40e5",
@@ -194,8 +194,8 @@
     "bytes": 20563023
    },
    "booster.npz": {
-    "sha256": "0f696d3a6bb331ab169c3d33a3b0a5e6bdde845149ce269e7deeb6a372654282",
-    "bytes": 7934737
+    "sha256": "221c450279175faac59cc2ee4982701ec9ec1157d6547050a6407a4b6ff2000c",
+    "bytes": 15956167
    },
    "member.json": {
     "sha256": "78428a9e727ba95ea9dfc99f1d652f7bba3e90f47a0842c41878223a113fa373",
@@ -208,8 +208,8 @@
     "bytes": 20559498
    },
    "booster.npz": {
-    "sha256": "87b6a337f0c932ed6d67f40f3ef2d5cc238ed9abe4b8417374061b6a617c8dbf",
-    "bytes": 7935029
+    "sha256": "47d60710c4f1689d3e1d5193ab9b6bbea207627da884e84454a4a9b8412ac4db",
+    "bytes": 15955192
    },
    "member.json": {
     "sha256": "f5c2dc03da0b78aef73749dc3bb15d4820b5275115b8f18e478a62228edc6bbf",
@@ -222,8 +222,8 @@
     "bytes": 20564912
    },
    "booster.npz": {
-    "sha256": "ae641c4d497310baf472062e6437020d765810ee984ce1b2f0ac6e80292d67bf",
-    "bytes": 7934564
+    "sha256": "7d010e6d23afee71dd6c2bebdfec525f656b59ad6752e309b313a5b48c2187f8",
+    "bytes": 15954730
    },
    "member.json": {
     "sha256": "50ac468ec66ba0e5f5754da622be82e51083871de83edd1fc8ae5912486c1df9",
@@ -236,8 +236,8 @@
     "bytes": 20567302
    },
    "booster.npz": {
-    "sha256": "93e94910cd731e1d974a7da325478738bbe03db808b769e05a1a8195e00fdb2f",
-    "bytes": 7935366
+    "sha256": "b2f23c8f2ff07fb76f9a106ddd2e9cdb2acfb2b74b1aff4bd4aff1158601ef45",
+    "bytes": 15958539
    },
    "member.json": {
     "sha256": "20504726219c307d8c8f6768b4f51c1b2a2ab61f6e50ea3027ec4aa1e0df8e1f",
@@ -250,8 +250,8 @@
     "bytes": 20565093
    },
    "booster.npz": {
-    "sha256": "535b03ee630cd978b2b23271a84d5c99b7420d7a996bf67dd834e1b85c0f2b79",
-    "bytes": 7935776
+    "sha256": "d746e71d02471ba65a247ce0fa9a9971069114ceec58ec5ad3b1d9f39aa7d67b",
+    "bytes": 15958043
    },
    "member.json": {
     "sha256": "b005206c011763ee5f92c7a8781a9c8f5ae76769816d210ab468a39eaacc78fb",
@@ -264,8 +264,8 @@
     "bytes": 20560343
    },
    "booster.npz": {
-    "sha256": "022188fc7d7a3464d538d663419e3abb45001ebe8ee02f7bfe3614e4b92ff4d0",
-    "bytes": 7934537
+    "sha256": "645e422286eeb611e36300dd5b33cec07904f543e736bfd87f7e25b41ddeb717",
+    "bytes": 15955205
    },
    "member.json": {
     "sha256": "2dcd6e638d439362e96176b1bfc0df4297476cad8654419697a635d0a64f00f1",
