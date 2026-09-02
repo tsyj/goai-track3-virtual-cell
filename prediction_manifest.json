@@ -17,10 +17,10 @@
   "FE16_early_pert16"
  ],
  "weights": "equal",
- "sha256": "5ad4d9d4e58ef3c704ef589315867a5d6ef325952379529586bc17d03091e59d",
+ "sha256": "0a45ec5ec4f1cf1bbfdd50e4abda1ae71e8b131cf1b17203a8b7ca1cba03fde0",
  "mb": 177.3,
  "test_labels_used": false,
  "config": "configs/final.yaml",
- "config_sha256": "de96774fd9432d3ba51836ae4340cac30f63246313563cd8e70ae42fbec08085",
- "code_version": "7952ab0c62c1558b31012b77358af57e8fcea8b3"
+ "config_sha256": "5e014e4d02ae4b3f3c02d36f9ec4f9a4508c7a8c6e825d56dc525c9f242859ef",
+ "code_version": "5dc36e643815221ed93f1a3c952d098856bec07c"
 }

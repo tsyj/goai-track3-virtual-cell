@@ -23,10 +23,14 @@ data:
 model:
   n_pass: 6
   unseen_strain_booster_scale: 1.0
-  effect_expansion:                  # 大效应非线性扩张（后处理，作用于集成均值）；标定见 experiments/77,80,83-85
-    beta: 0.7
+  # ---- 后处理（作用于集成均值；只动零标签菌株的处理孔；参数在内层折标定、官方验证划分确认）----
+  unseen_strain_reference_amplify:   # 放大偏离化合物冻结参照的分量；标定见 experiments/97,98
+    lam: 1.55
+    reference: compound              # μ = 训练行按化合物聚合的平均扰动效应（frozen_reference_mu）
+  effect_expansion:                  # 尾部扩张；标定见 experiments/77,80,83-85,98
+    beta: 0.4
     tau: 0.75
-    rows: unseen_strain              # 只作用于零标签菌株（训练标签中不存在的菌株）的行   # 未见菌株行的 booster 重定标；标定见 experiments/69（待真配置确认后写入采纳值）                         # 回填扫数；4/8/12/24 均实测更差（scripts/experiments/49, 55）
+    rows: unseen_strain   # 未见菌株行的 booster 重定标；标定见 experiments/69（待真配置确认后写入采纳值）                         # 回填扫数；4/8/12/24 均实测更差（scripts/experiments/49, 55）
   fit_offset: true                  # 每样本上样偏移；关闭为 -0.0002（55/56）
   # 因子按“粗→细”顺序回填；顺序本身是一个被实测证明重要的超参（experiments/41, 49）
   base_lambdas:                     # 收缩强度 λ；下列值为采纳点，成员可覆盖

@@ -219,3 +219,63 @@ def effect_expansion(P, meta, beta, tau, row_mask=None):
         apply = apply & np.asarray(row_mask, bool)
     out = np.where(apply[:, None], C + D * gmul, P).astype(np.float32)
     return out, int(has.sum()), int(apply.sum())
+
+
+def frozen_reference_mu(P, visible, key="compound"):
+    """训练标签导出的冻结参照：按 ``key`` 聚合的可见行平均扰动效应 Δ_true。
+
+    Δ_true = y − y_matched_control，与官方评分同键（来源/菌株/培养基/温度/时间/仪器/板号）。
+    **只用 visible（split_final == 'train'）行的标签**：计算对照参照前先把非可见行的强度置为 NaN，
+    因此验证与测试标签不可能进入该统计量。返回 (names, mu)，mu 形状 = (len(names), n_proteins)。
+    """
+    from .design import match_controls, control_reference
+    meta = P.meta.reset_index(drop=True)
+    X_vis = np.where(np.asarray(visible)[:, None], P.X, np.nan).astype(np.float32)
+    C = control_reference(X_vis, match_controls(meta, "both"))
+    D = X_vis - C
+    treated = np.asarray(visible) & ~meta["is_control"].to_numpy() & ~meta["is_qc"].to_numpy()
+    k = meta[key].astype(str).to_numpy()
+    names, rows = [], []
+    for kk in sorted(set(k[treated])):
+        v = np.nanmean(D[treated & (k == kk)], axis=0)
+        if np.isfinite(v).any():
+            names.append(kk); rows.append(np.nan_to_num(v))
+    return names, (np.stack(rows).astype(np.float32) if rows else np.zeros((0, P.X.shape[1]), np.float32))
+
+
+def postprocess_effects(P, meta, seen_strains, mu_names, mu, lam=1.0, beta=0.0, tau=0.75, key="compound"):
+    """对集成均值做两步后处理，只作用于「零标签实体」的处理孔，且都是冻结的确定性规则。
+
+    1. 参照放大：D' = μ + lam·(D − μ)，D = P − C，C = 同上下文对照孔的预测均值，
+       μ = 该化合物的冻结参照（见 frozen_reference_mu）。只对「菌株不在训练可见集合、
+       且化合物在参照表内」的行生效。
+    2. 尾部扩张：D'' = D'·(1 + beta·min(|D'|/tau, 1)²)，只对零标签菌株的行生效。
+
+    机制与标定见 docs 与 scripts/experiments/77, 84, 96, 97, 98：评分的 Δ 两边共用同一个实测对照，
+    预测中「模型信号 : 共享参照噪声」的配比存在内点最优；零标签实体行的最优配比与可见行不同。
+    参数在只用训练标签的六个内层折上标定，并在官方验证划分上确认。
+    """
+    P = np.asarray(P, np.float32)
+    ctrl = meta["is_control"].to_numpy(); ctx = meta["ctx_key"].astype(str).to_numpy()
+    C = np.zeros_like(P); has = np.zeros(len(P), bool)
+    df = pd.DataFrame({"ctx": ctx, "i": np.arange(len(P))})
+    for c, g in df[ctrl].groupby("ctx"):
+        idx = df.index[df.ctx == c].to_numpy()
+        C[idx] = P[g.i.to_numpy()].mean(0); has[idx] = True
+    D = np.where(has[:, None], P - C, 0.0)
+    unseen = ~meta["Strains"].astype(str).isin(set(seen_strains)).to_numpy()
+    Dn = D.copy(); n_amp = 0
+    if lam != 1.0 and len(mu_names):
+        pos = {n: i for i, n in enumerate(mu_names)}
+        kk = meta[key].astype(str).to_numpy()
+        rows = np.where(has & ~ctrl & unseen & np.array([x in pos for x in kk]))[0]
+        if len(rows):
+            M = mu[[pos[kk[i]] for i in rows]]
+            Dn[rows] = M + lam * (D[rows] - M); n_amp = len(rows)
+    n_exp = 0
+    if beta > 0:
+        g = 1.0 + float(beta) * np.minimum(np.abs(Dn) / float(tau), 1.0) ** 2
+        m = has & ~ctrl & unseen
+        Dn = np.where(m[:, None], Dn * g, Dn); n_exp = int(m.sum())
+    out = np.where((has & ~ctrl)[:, None], C + Dn, P).astype(np.float32)
+    return out, int(has.sum()), n_amp, n_exp

@@ -6,9 +6,9 @@
 | **赛道 / 方向** | 赛道三 前沿探索 AI for Research · 算法赛题 · 方向一 虚拟细胞（AIVC） |
 | **队伍** | 有枣儿 |
 | **作品** | 从批次结构到扰动响应：分层收缩回填与残差提升的虚拟酵母模型 |
-| **最终模型** | 结构化 12 成员集成：分层收缩回填（`UnifiedBackfit`）＋ 残差梯度提升（`ResidualBooster`）；自评镜像总分 0.5050（官方 val 划分口径，最终评审以组委会内部集为准） |
+| **最终模型** | 结构化 12 成员集成：分层收缩回填（`UnifiedBackfit`）＋ 残差梯度提升（`ResidualBooster`）；自评镜像总分 0.5079（官方 val 划分口径，最终评审以组委会内部集为准） |
 | **prediction.csv SHA256** | `c6750c9796d9faf4c898cf2465ed28a3ed7b0da88daacb7d21155b37c413c6c7` |
-| **代码版本** | git tag `v2.2-semifinal`（提交前冻结于最终提交） ／ 仓库 https://github.com/tsyj/goai-track3-virtual-cell |
+| **代码版本** | git tag `v2.3-semifinal`（提交前冻结于最终提交） ／ 仓库 https://github.com/tsyj/goai-track3-virtual-cell |
 | **配置 hash** | `configs/final.yaml` SHA256 `b71d5dfea3a03c676b381d0b0e8de202…` |
 | **负责人** | 孙丽敏 · jxy23@mails.tsinghua.edu.cn（与官网报名账号一致） |
 | **已知限制** | 见第 6 节 |
@@ -63,7 +63,7 @@ bash scripts/smoke_test.sh
 
 无需 GPU。`runs/final` 约 327 MB。
 
-**冻结产物（G 项）**：每个成员的加性项表 + booster 成分基与设计矩阵成分得分，逐文件 SHA256 见 `REPRODUCIBILITY_MANIFEST.json` 的 `artifact_checksums`；整套 `runs/final` 与我们的 `prediction.csv` 以 GitHub Release （tag `v2.2-semifinal` 的 Assets）提供稳定下载链接。本模型没有神经网络意义上的权重文件——训练在 CPU 上从头复现只需上表时间。
+**冻结产物（G 项）**：每个成员的加性项表 + booster 成分基与设计矩阵成分得分，逐文件 SHA256 见 `REPRODUCIBILITY_MANIFEST.json` 的 `artifact_checksums`；整套 `runs/final` 与我们的 `prediction.csv` 以 GitHub Release （tag `v2.3-semifinal` 的 Assets）提供稳定下载链接。本模型没有神经网络意义上的权重文件——训练在 CPU 上从头复现只需上表时间。
 
 ---
 
@@ -127,6 +127,20 @@ strain-early 顺序单独用时 3/6 折不过线，做成员却 6/6 过线，官
 以可复现值为准，重算日志见 `artifacts/results/pool_real_eval.csv`。）
 
 ---
+
+### 最终训练策略（对应提交说明 4.2）
+
+**最终模型仅在 `split_final == 'train'` 的 5,920 行上拟合，未在验证选型后重训，也从未使用验证标签。**
+验证行（3,038 行）只出现在两处，都不涉及标签进入模型：
+
+1. **模型选择**：`scripts/experiments/evaluate_val_mirror.py` 在官方 val 划分上评一次分数，用于确认内层折
+   选出的配置在部署口径下同样成立。所有取舍先由六个内层折的逐折配对检验决定，val 只做最终确认。
+2. **转导式设计矩阵**：验证行与测试行的 *metadata*（官方公开、不含蛋白真值）与训练行一起构成设计矩阵的行集合，
+   使批次因子的水平表完整。**这些行的标签在拟合中被 `visible` 掩码排除**，见 `src/vcell/pipeline.py::build_design`
+   与 `fit_member`（`visible = split_final == 'train'`）。
+
+冻结统计量（蛋白过滤的缺失率、SVD 基、类别水平表、后处理的参照均值）**全部只用训练行计算**。
+测试蛋白真值在代码层禁读，`scripts/build_embeddings.py --check` 会实际调用一次证明它被拒。
 
 ## 4. 数据边界与合规
 

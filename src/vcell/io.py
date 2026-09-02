@@ -47,7 +47,9 @@ def _cache_dir():
     env = os.environ.get("VCELL_CACHE_DIR")
     if env:
         cands.append(env)
-    cands.append(os.path.join(ROOT, "data", "cache"))
+    # 只有确认数据根有效时才在其下建缓存，避免数据根解析失败时留下空目录
+    if os.path.isdir(os.path.join(ROOT, "data", "input")):
+        cands.append(os.path.join(ROOT, "data", "cache"))
     cands.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                               ".vcell_cache"))
     cands.append(os.path.join(tempfile.gettempdir(), "vcell_cache"))

@@ -47,6 +47,14 @@ def main():
     # 公开发放的、不含任何蛋白真值），只有 train 行的标签可见。因此训练需要同时挂载
     # 训练与测试 metadata 两个 CSV；缺测试 metadata 会在下面直接报 FileNotFoundError。
     P, visible, is_test = pl.build_design(cfg)
+
+    # 冻结参照统计量（只用训练行标签）：供 predict.py 的后处理使用
+    os.makedirs(args.output_dir, exist_ok=True)
+    _ref = os.path.join(args.output_dir, "reference_mu.npz")
+    if not os.path.exists(_ref):
+        _names, _mu = pl.frozen_reference_mu(P, visible, key="compound")
+        np.savez_compressed(_ref, names=np.array(_names, dtype=object), mu=_mu)
+        print(f"冻结参照：{len(_names)} 个化合物 × {_mu.shape[1]} 蛋白 → {_ref}", flush=True)
     print(f"设计矩阵：{len(P.meta)} 行（train+test 并集） 可见标签 {visible.sum()} 行 "
           f"测试 {is_test.sum()} 行 蛋白 {P.X.shape[1]}  ({time.time()-t0:.0f}s)", flush=True)
 
@@ -87,7 +95,9 @@ def main():
         "proteins": [str(x) for x in P.proteins],
         "test_sample_ids": P.meta.loc[is_test, "sample_ID"].astype(str).tolist(),
         "seen_strains": sorted(P.meta.loc[visible, "Strains"].astype(str).unique().tolist()),
+        "seen_compounds": sorted(P.meta.loc[visible, "compound"].astype(str).unique().tolist()),
         "test_strains": P.meta.loc[is_test, "Strains"].astype(str).tolist(),
+        "test_compounds": P.meta.loc[is_test, "compound"].astype(str).tolist(),
         "total_secs": round(time.time() - t0),
         "note": "标签仅来自 split_final == 'train'；测试蛋白真值未被读取。",
     }, open(os.path.join(args.output_dir, "run.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)

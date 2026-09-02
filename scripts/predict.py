@@ -90,26 +90,32 @@ def main():
 
     exp_cfg = cfg["model"].get("effect_expansion") or {}
     beta, tau = float(exp_cfg.get("beta", 0.0)), float(exp_cfg.get("tau", 1.0))
-    all_rows = np.arange(run["n_rows"]) if beta > 0 else np.where(is_test)[0]
+    amp_cfg = cfg["model"].get("unseen_strain_reference_amplify") or {}
+    lam = float(amp_cfg.get("lam", 1.0)); amp_key = str(amp_cfg.get("reference", "compound"))
+    need_all = (beta > 0) or (lam != 1.0)
+    all_rows = np.arange(run["n_rows"]) if need_all else np.where(is_test)[0]
     preds = []
     for n in want:
         art = pl.load_member(args.run_dir, n)
         bm = None if boost_mult is None or beta > 0 else boost_mult
         preds.append(pl.predict_rows(art, all_rows, boost_mult=bm))
         print(f"  {n}: 均值 {preds[-1][is_test[all_rows]].mean():.4f}", flush=True)
-    if beta > 0:
-        # 大效应非线性扩张：作用于集成均值，需要全部行（对照孔可能是训练行）的预测与 metadata
+    if need_all:
+        # 后处理（参照放大 + 尾部扩张），作用于集成均值；两者都只动零标签实体的处理孔
         Pm = np.mean(preds, 0).astype(np.float32)
         design = pl.build_design(cfg)[0]
         assert len(design.meta) == run["n_rows"], "run.json 行数与当前设计矩阵不一致"
-        rows_opt = str(exp_cfg.get("rows", "all"))
-        mask = None
-        if rows_opt == "unseen_strain":
-            seen = set(run.get("seen_strains") or [])
-            assert seen, "run.json 缺 seen_strains；请重跑 scripts/train.py --finalize"
-            mask = ~design.meta["Strains"].astype(str).isin(seen).to_numpy()
-        Pm, n_has, n_treated = pl.effect_expansion(Pm, design.meta, beta, tau, row_mask=mask)
-        print(f"大效应扩张 β={beta} τ={tau} rows={rows_opt}：{n_has}/{len(Pm)} 行有同上下文对照，实际作用 {n_treated} 行", flush=True)
+        seen = run.get("seen_strains") or []
+        assert seen, "run.json 缺 seen_strains；请重跑 scripts/train.py --finalize"
+        names, mu = [], np.zeros((0, Pm.shape[1]), np.float32)
+        rp = os.path.join(args.run_dir, "reference_mu.npz")
+        if lam != 1.0:
+            assert os.path.exists(rp), f"配置启用了参照放大但缺 {rp}；请重跑 scripts/train.py"
+            z = np.load(rp, allow_pickle=True); names = [str(x) for x in z["names"]]; mu = z["mu"]
+        Pm, n_has, n_amp, n_exp = pl.postprocess_effects(
+            Pm, design.meta, seen, names, mu, lam=lam, beta=beta, tau=tau, key=amp_key)
+        print(f"后处理：{n_has}/{len(Pm)} 行有同上下文对照；参照放大 lam={lam} 作用 {n_amp} 行；"
+              f"尾部扩张 beta={beta} tau={tau} 作用 {n_exp} 行", flush=True)
         preds = [Pm[is_test]]
     w = cfg["ensemble"].get("weights")
     Y = pl.compose(preds, w)
