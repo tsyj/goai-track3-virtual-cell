@@ -35,55 +35,56 @@
  },
  "code_version": {
   "repository": "https://github.com/tsyj/goai-track3-virtual-cell",
-  "tag": null,
-  "commit": "67450574b0fe5c74ccd674b887a2d02079c9bb56",
-  "commit_date": "2026-09-02T04:16:28+08:00",
-  "dirty": true
+  "tag": "v2.0-semifinal",
+  "note": "tag 指向包含本清单的提交；commit 字段为其父提交（清单无法包含自身的哈希）；以 file_checksums 为版本证明",
+  "commit": "bd7d0591102484bae9b6b5f352128b9dc7c7b9c8",
+  "commit_date": "2026-09-02T15:45:57+08:00",
+  "dirty": false
  },
  "file_checksums": {
   "configs/final.yaml": {
-   "sha256": "b71d5dfea3a03c676b381d0b0e8de20240c10fea652f6a9ecaaa4f69b00d0d25",
-   "bytes": 3409
+   "sha256": "2f13f042148758548d13148e0d3926f5fe442dc720fd1c7b06818d97a99f2cbc",
+   "bytes": 3738
   },
   "README.md": {
-   "sha256": "718d32419b382397e51da623201b1bc09aea29c7e42ad0d395590cc2643ad225",
-   "bytes": 10895
+   "sha256": "6feb8c5ec95cd5e7b0d4c893af0d600931c0b933d988baf082285567389ee8a0",
+   "bytes": 12379
   },
   "requirements.txt": {
-   "sha256": "2a6841bfe0d8bc68124602afbd1311f781b2484b2e30af555c747f320771b514",
-   "bytes": 308
+   "sha256": "5f1de188623688e8f5ac2af1b94c6049e58819d72b39a3a3771ed00007972027",
+   "bytes": 666
   },
   "scripts/build_embeddings.py": {
-   "sha256": "9fd3f1ac7a081218cddc639d694083a966b2564f6f30623e584bbddf47757191",
-   "bytes": 6009
+   "sha256": "10c662dff37545fbc8403b4f0b1468a08c22207876620f54e598a2faa036b093",
+   "bytes": 6109
   },
   "scripts/train.py": {
-   "sha256": "bcd797c9532b82710cb7985d5bfe8bd2dea1ff0ef9069ba354d0e2b724603da2",
-   "bytes": 4332
+   "sha256": "9d91111841a6b3561e318cf4a9694985cef64c9ee4ca1b5c0e7583544966a736",
+   "bytes": 5152
   },
   "scripts/predict.py": {
-   "sha256": "22cd2e5e840b1e809c8e5cbad0bf376f5d67fabca38166f070f48e200df4c438",
-   "bytes": 3652
+   "sha256": "4412830b115a105c622d245eea0a2d065ed3b7bf46c95cde66cbd19d368a1c89",
+   "bytes": 5925
   },
   "scripts/validate_submission.py": {
    "sha256": "d13351ddc8dc726e519988bb17689d693f8c7ee1bb7c7218ec4bf400d53b6ddf",
    "bytes": 4716
   },
   "scripts/smoke_test.sh": {
-   "sha256": "6806261d3257b37121148a62405cdbc96892e279ec7be34c128e9a4ce56b2d4b",
-   "bytes": 1604
+   "sha256": "bce8266aed2ad8e8a0eac3b45a206b930778d93d32438591fad0e3a040df53a3",
+   "bytes": 1640
   },
   "src/vcell/models.py": {
    "sha256": "53fcf51a80c4f1e184e5f3a960c5ebd519ef8c7c78dd7664c534940b5e8b167d",
    "bytes": 21346
   },
   "src/vcell/pipeline.py": {
-   "sha256": "9b211dd22904ebb32ee226725ef9ac972219ef1f59a3baec0d6271ca5990760a",
-   "bytes": 8189
+   "sha256": "67574a229af3e067895191487abbdb25ee3c7962d4194f228da087ae7aa84544",
+   "bytes": 8807
   },
   "src/vcell/io.py": {
-   "sha256": "9634fe48c3c751a11d29e7a46de8312ba5572cd318fc6cacb4ea93862ec6bae9",
-   "bytes": 6053
+   "sha256": "4fe53f434a6f65f956314e1332ffe62bb8cdcdec562c894a4e91a0f64a05ac46",
+   "bytes": 7661
   },
   "src/vcell/harness.py": {
    "sha256": "d7407dde926e99874bb267b225a605b1c42803a9f0652adabc3fe73df47055fb",
